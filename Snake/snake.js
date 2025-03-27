@@ -4,6 +4,9 @@ const DOWN = 1;
 const LEFT = 2;
 const RIGHT = 3;
 
+const GRID_X = 40;
+const GRID_Y = 30;
+
 class GameOver extends Phaser.Scene {
     constructor ()
     {
@@ -136,19 +139,19 @@ class MainScene extends Phaser.Scene {
                 switch (this.heading)
                 {
                     case LEFT:
-                        this.headPosition.x = Phaser.Math.Wrap(this.headPosition.x - 1, 0, 40);
+                        this.headPosition.x = Phaser.Math.Wrap(this.headPosition.x - 1, 0, GRID_X);
                         break;
 
                     case RIGHT:
-                        this.headPosition.x = Phaser.Math.Wrap(this.headPosition.x + 1, 0, 40);
+                        this.headPosition.x = Phaser.Math.Wrap(this.headPosition.x + 1, 0, GRID_X);
                         break;
 
                     case UP:
-                        this.headPosition.y = Phaser.Math.Wrap(this.headPosition.y - 1, 0, 30);
+                        this.headPosition.y = Phaser.Math.Wrap(this.headPosition.y - 1, 0, GRID_Y);
                         break;
 
                     case DOWN:
-                        this.headPosition.y = Phaser.Math.Wrap(this.headPosition.y + 1, 0, 30);
+                        this.headPosition.y = Phaser.Math.Wrap(this.headPosition.y + 1, 0, GRID_Y);
                         break;
                 }
 
@@ -234,7 +237,7 @@ class MainScene extends Phaser.Scene {
     }
 
     /**
-    * We can place the food anywhere in our 40x30 grid
+    * We can place the food anywhere in our GRID_Xx30 grid
     * *except* on-top of the snake, so we need
     * to filter those out of the possible food locations.
     * If there aren't any locations left, they've won!
@@ -250,11 +253,11 @@ class MainScene extends Phaser.Scene {
         //  A Grid we'll use to reposition the food each time it's eaten
         var testGrid = [];
 
-        for (var y = 0; y < 30; y++)
+        for (var y = 0; y < GRID_Y; y++)
         {
             testGrid[y] = [];
 
-            for (var x = 0; x < 40; x++)
+            for (var x = 0; x < GRID_X; x++)
             {
                 testGrid[y][x] = true;
             }
@@ -265,9 +268,9 @@ class MainScene extends Phaser.Scene {
         //  Purge out false positions
         var validLocations = [];
 
-        for (var y = 0; y < 30; y++)
+        for (var y = 0; y < GRID_Y; y++)
         {
-            for (var x = 0; x < 40; x++)
+            for (var x = 0; x < GRID_X; x++)
             {
                 if (testGrid[y][x] === true)
                 {
@@ -297,6 +300,8 @@ class MainScene extends Phaser.Scene {
     {
         if (!this.snake.alive)
         {
+            console.log("Snake hat sich gegessen ;-)")
+            this.scene.start('GameOver');
             return;
         }
 
@@ -351,12 +356,12 @@ class MainScene extends Phaser.Scene {
         {
             this.snake.faceDown();
         } 
-    /** 
-        if (pad.X || this.input.activePointer.rightButtonDown()) {
-            console.log("Square pressed or mouse right pressed")
+
+        if (this.input.activePointer.rightButtonDown()) {
+            console.log("Mouse right pressed")
             this.scene.start('GameOver');
         }
-    */
+
         if (this.snake.update(time))
         {
             //  If the snake updated, we need to check for collision against food
