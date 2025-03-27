@@ -1,0 +1,11 @@
+# Abhängigkeiten
+node_modules/
+
+# Betriebssystem-spezifische Dateien
+.DS_Store
+Thumbs.db
+
+# Vim swap files
+*.swp
+*.swo
+*~
