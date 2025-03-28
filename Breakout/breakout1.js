@@ -14,10 +14,10 @@ class Breakout extends Phaser.Scene
     {
         this.load.setBaseURL('.');
         this.load.atlas('assets', 'assets/breakout_atlas.png', 'assets/breakout_atlas.json');
-        this.load.audio('hitpaddle', 'assets/tennis-ball-hit-151257.mp3'); // vom pixabay
-        this.load.audio('hitbrick', 'assets/8-bit-game-2-186976.mp3'); // vom pixaba
-        this.load.audio('gameover', 'assets/game-over-arcade-6435.mp3'); // vom pixaba
-        this.load.audio('gamestart', 'assets/retro-game-jingleaif-14638.mp3'); // vom pixaba
+        this.load.audio('hitpaddle', 'assets/tennis-ball-hit-151257.mp3'); // von pixabay
+        this.load.audio('hitbrick', 'assets/8-bit-game-2-186976.mp3'); // von pixaba
+        this.load.audio('gameover', 'assets/game-over-arcade-6435.mp3'); // von pixaba
+        this.load.audio('gamestart', 'assets/retro-game-jingleaif-14638.mp3'); // von pixaba
 
         
     }

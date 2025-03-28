@@ -29,9 +29,10 @@ class MainScene extends Phaser.Scene {
 
     preload ()
     {
-        this.load.setBaseURL('https://cdn.phaserfiles.com/v385');
-        this.load.image('food', 'assets/games/snake/food.png');
-        this.load.image('body', 'assets/games/snake/body.png');
+        this.load.setBaseURL('.');
+        this.load.image('food', 'assets/food.png');
+        this.load.image('body', 'assets/body.png');
+        this.load.image('head', 'assets/head.png');  
     }
 
     create ()
@@ -72,7 +73,7 @@ class MainScene extends Phaser.Scene {
 
                 this.body = scene.add.group();
 
-                this.head = this.body.create(x * 16, y * 16, 'body');
+                this.head = this.body.create(x * 16, y * 16, 'head');
                 this.head.setOrigin(0);
 
                 this.alive = true;

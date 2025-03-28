@@ -9,5 +9,8 @@ LEDPAL ist ein Produkt der fiktiven Firma RetroRush. RetroRush hat es sich zum Z
 ##Installation
 
 
+Eigene Spiele hinzufügen
 
+##Assets für Spiele runterladen
 
+Dateien aus dem Internet kann man einfach mit *wget dateiname* herunterladen. 
