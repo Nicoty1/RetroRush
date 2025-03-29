@@ -17,9 +17,7 @@ class Breakout extends Phaser.Scene
         this.load.audio('hitpaddle', 'assets/tennis-ball-hit-151257.mp3'); // von pixabay
         this.load.audio('hitbrick', 'assets/8-bit-game-2-186976.mp3'); // von pixaba
         this.load.audio('gameover', 'assets/game-over-arcade-6435.mp3'); // von pixaba
-        this.load.audio('gamestart', 'assets/retro-game-jingleaif-14638.mp3'); // von pixaba
-
-        
+        this.load.audio('gamestart', 'assets/retro-game-jingleaif-14638.mp3'); // von pixaba   
     }
 
     create ()
@@ -76,6 +74,16 @@ class Breakout extends Phaser.Scene
         this.soundhitbrick = this.sound.add('hitbrick');
         this.gameover = this.sound.add('gameover');
         this.gamestart = this.sound.add('gamestart');
+
+        this.closeButton = this.add.text(this.scale.width - 30, 30, 'X', {
+            fontSize: '32px',
+            color: '#ffffff',
+            fontStyle: 'bold'
+        }).setInteractive();
+        // Zentrieren (damit das "X" nicht abgeschnitten ist)
+        this.closeButton.setOrigin(0.5);
+        // Klick-Ereignis hinzufügen
+        this.closeButton.on('pointerdown', () => {this.scene.start('GameOver')}, this);       
 
     }
 

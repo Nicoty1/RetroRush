@@ -37,6 +37,16 @@ class MainScene extends Phaser.Scene {
 
     create ()
     {
+        this.closeButton = this.add.text(this.scale.width - 30, 30, 'X', {
+            fontSize: '32px',
+            color: '#ffffff',
+            fontStyle: 'bold'
+        }).setInteractive();
+        // Zentrieren (damit das "X" nicht abgeschnitten ist)
+        this.closeButton.setOrigin(0.5);
+        // Klick-Ereignis hinzufügen
+        this.closeButton.on('pointerdown', () => {this.scene.start('GameOver')}, this);
+
         var Food = new Phaser.Class({
 
             Extends: Phaser.GameObjects.Image,
@@ -238,7 +248,7 @@ class MainScene extends Phaser.Scene {
     }
 
     /**
-    * We can place the food anywhere in our GRID_Xx30 grid
+    * We can place the food anywhere in our grid
     * *except* on-top of the snake, so we need
     * to filter those out of the possible food locations.
     * If there aren't any locations left, they've won!
