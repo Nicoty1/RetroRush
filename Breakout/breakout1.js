@@ -17,7 +17,8 @@ class Breakout extends Phaser.Scene
         this.load.audio('hitpaddle', 'assets/tennis-ball-hit-151257.mp3'); // von pixabay
         this.load.audio('hitbrick', 'assets/8-bit-game-2-186976.mp3'); // von pixaba
         this.load.audio('gameover', 'assets/game-over-arcade-6435.mp3'); // von pixaba
-        this.load.audio('gamestart', 'assets/retro-game-jingleaif-14638.mp3'); // von pixaba   
+        this.load.audio('gamestart', 'assets/retro-game-jingleaif-14638.mp3'); // von pixaba  
+        this.input.setDefaultCursor('none') 
     }
 
     create ()
@@ -75,6 +76,22 @@ class Breakout extends Phaser.Scene
         this.gameover = this.sound.add('gameover');
         this.gamestart = this.sound.add('gamestart');
 
+        this.scoreText=this.add.text(20,20,'Score: '+score,{
+            fontSize: '32px',
+            color: '#ffffff',
+            fontStyle: 'bold'
+        });
+
+    
+        this.scoreText=this.add.text(20,70,'Highscore: '+highScore,{
+            fontSize: '32px',
+            color: '#ffffff',
+            fontStyle: 'bold'
+        });
+
+
+
+
         this.closeButton = this.add.text(this.scale.width - 30, 30, 'X', {
             fontSize: '32px',
             color: '#ffffff',
@@ -83,8 +100,8 @@ class Breakout extends Phaser.Scene
         // Zentrieren (damit das "X" nicht abgeschnitten ist)
         this.closeButton.setOrigin(0.5);
         // Klick-Ereignis hinzufügen
-        this.closeButton.on('pointerdown', () => {this.scene.start('GameOver')}, this);       
-
+        this.closeButton.on('pointerdown', () => {this.scene.start('GameOver')}, this); 
+        this.gamestart.play();
     }
 
     hitBrick (ball, brick)
@@ -95,6 +112,8 @@ class Breakout extends Phaser.Scene
         {
             this.resetLevel();
         }
+        //scoreIncrement++;
+        score+=scoreIncrement;
 
     }
 
@@ -138,6 +157,7 @@ class Breakout extends Phaser.Scene
             ball.setVelocityX(2 + Math.random() * 8);
         }
         this.soundhitpaddle.play();
+        scoreIncrement=1;   // reset increment
     }
 
     update ()
@@ -161,6 +181,7 @@ class Breakout extends Phaser.Scene
             }
 
         }
+        this.scoreText.setText('Score: '+score);
 
 
 
@@ -182,6 +203,10 @@ class GameOver extends Phaser.Scene {
 const xsize = 800  // 796
 const ysize = 480  // 476
 
+let score = 0;
+let highscore = 0;
+let scoreIncrement=1;
+
 const config = {
     type: Phaser.WEBGL,
     width: xsize,
@@ -198,173 +223,3 @@ const config = {
 
 
 const game = new Phaser.Game(config);
-
-
-/*
-function endGameAndRedirect() {
-    // Phaser Spiel beenden und Ressourcen freigeben
-    if (game && game.destroy) {
-      game.destroy(true);
-    }
-    
-    // Weiterleitung auf eine andere Webseite
-    window.location.href = 'https://www.deine-neue-seite.de';
-  }
-  
-  // Beispiel: Funktion aufrufen, wenn das Spiel vorbei ist
-  // (z.B. im Game Over-Event oder einem Button-Klick)
-  endGameAndRedirect();
-
-
-
-  class Example extends Phaser.Scene
-{
-    preload ()
-    {
-        this.load.setBaseURL('https://cdn.phaserfiles.com/v385');
-        this.load.audio('theme', [
-            'assets/audio/oedipus_wizball_highscore.ogg',
-            'assets/audio/oedipus_wizball_highscore.mp3'
-        ]);
-
-        this.load.image('wizball', 'assets/sprites/wizball.png');
-    }
-
-    create ()
-    {
-        this.add.image(400, 300, 'wizball').setScale(4);
-
-        const music = this.sound.add('theme');
-
-        music.play();
-
-        this.sound.pauseOnBlur = true;
-    }
-}
-
-const config = {
-    type: Phaser.AUTO,
-    parent: 'phaser-example',
-    width: 800,
-    height: 600,
-    pixelArt: true,
-    scene: Example
-};
-
-const game = new Phaser.Game(config);
-
-
-
-
-
-https://labs.phaser.io/view.html?src=src%5Cinput%5Cgamepad%5Cgamepad%20debug.js
-
-
-
-
-
-class Example extends Phaser.Scene
-{
-    text;
-
-    preload ()
-    {
-        this.load.setBaseURL('https://cdn.phaserfiles.com/v385');
-        this.load.image('sky', 'assets/skies/lightblue.png');
-    }
-
-    create ()
-    {
-        this.add.image(0, 0, 'sky').setOrigin(0);
-
-        this.text = this.add.text(10, 30, '', { font: '16px Courier', fill: '#ffffff' });
-    }
-
-    update ()
-    {
-        if (this.input.gamepad.total === 0)
-        {
-            return;
-        }
-
-        const debug = [];
-        const pads = this.input.gamepad.gamepads;
-
-        // var pads = this.input.gamepad.getAll();
-        // var pads = navigator.getGamepads();
-
-        for (let i = 0; i < pads.length; i++)
-        {
-            const pad = pads[i];
-
-            if (!pad)
-            {
-                continue;
-            }
-
-            //  Timestamp, index. ID
-            debug.push(pad.id);
-            debug.push(`Index: ${pad.index} Timestamp: ${pad.timestamp}`);
-
-            //  Buttons
-
-            let buttons = '';
-
-            for (let b = 0; b < pad.buttons.length; b++)
-            {
-                const button = pad.buttons[b];
-
-                buttons = buttons.concat(`B${button.index}: ${button.value}  `);
-
-                // buttons = buttons.concat('B' + b + ': ' + button.value + '  ');
-
-                if (b === 8)
-                {
-                    debug.push(buttons);
-                    buttons = '';
-                }
-            }
-            
-            debug.push(buttons);
-
-            //  Axis
-
-            let axes = '';
-
-            for (let a = 0; a < pad.axes.length; a++)
-            {
-                const axis = pad.axes[a];
-
-                axes = axes.concat(`A${axis.index}: ${axis.getValue()}  `);
-
-                // axes = axes.concat('A' + a + ': ' + axis + '  ');
-
-                if (a === 1)
-                {
-                    debug.push(axes);
-                    axes = '';
-                }
-            }
-            
-            debug.push(axes);
-            debug.push('');
-        }
-        
-        this.text.setText(debug);
-    }
-}
-
-const config = {
-    type: Phaser.WEBGL,
-    parent: 'phaser-example',
-    width: 800,
-    height: 600,
-    input: {
-        gamepad: true
-    },
-    scene: Example
-};
-
-const game = new Phaser.Game(config);
-
-*/  

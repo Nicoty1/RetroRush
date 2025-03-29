@@ -32,7 +32,8 @@ class MainScene extends Phaser.Scene {
         this.load.setBaseURL('.');
         this.load.image('food', 'assets/food.png');
         this.load.image('body', 'assets/body.png');
-        this.load.image('head', 'assets/head.png');  
+        this.load.image('head', 'assets/head.png');
+        this.input.setDefaultCursor('none')
     }
 
     create ()
