@@ -26,6 +26,8 @@ class Breakout extends Phaser.Scene
 
     create ()
     {
+        // baelle auf 3 setzen
+        baelle = 3;
         //  Enable world bounds, but disable the floor
         this.physics.world.setBoundsCollision(true, true, true, false);
 
@@ -63,7 +65,7 @@ class Breakout extends Phaser.Scene
         {
             if (pointer.event.button === 2) {
                 console.log('Rechte Maustaste gedrückt');
-                this.scene.start('GameOver');
+                this.scene.start('QuitGame');
             }
             else {
                 if (this.ball.getData('onPaddle')) {
@@ -96,7 +98,7 @@ class Breakout extends Phaser.Scene
         });
 
 
-
+/*
         this.closeButton = this.add.text(this.scale.width - 30, 30, 'X', {
             fontSize: '32px',
             color: '#ffffff',
@@ -105,7 +107,8 @@ class Breakout extends Phaser.Scene
         // Zentrieren (damit das "X" nicht abgeschnitten ist)
         this.closeButton.setOrigin(0.5);
         // Klick-Ereignis hinzufügen
-        this.closeButton.on('pointerdown', () => {this.scene.start('GameOver')}, this); 
+        this.closeButton.on('pointerdown', () => {this.scene.start('QuitGame')}, this); 
+*/
         this.gamestart.play();
     }
 
@@ -187,7 +190,7 @@ class Breakout extends Phaser.Scene
             }
             if (pad.X) {
                 console.log("Square pressed")
-                this.scene.start('GameOver');
+                this.scene.start('QuitGame');
             }
 
         }
@@ -195,10 +198,10 @@ class Breakout extends Phaser.Scene
     }
 }
 
-class GameOver extends Phaser.Scene {
+class QuitGame extends Phaser.Scene {
     constructor ()
     {
-        super({ key: 'GameOver' });
+        super({ key: 'QuitGame' });
     }
     create () {
         if (isHighscore('Breakout',score)) {
@@ -211,50 +214,145 @@ class GameOver extends Phaser.Scene {
     }
 }
 
-class SplashScreen extends Phaser.Scene {
-    constructor() {
-        super({ key: 'Splashscreen' });
-        this.score = 0;
-        this.gameName = 'Breakout'; // Name des Spiels
+class GameOver extends Phaser.Scene {
+    constructor ()
+    {
+        super({ key: 'GameOver' });
     }
 
     create() {
-        // Highscores laden und anzeigen
-        const highscores = loadHighscores(this.gameName);
+        const { width, height } = this.scale;
 
-        this.add.text(10, 10, 'Highscores:', { fontSize: '20px', color: '#ffffff' });
-        highscores.forEach((entry, index) => {
-            this.add.text(10, 40 + index * 30, `${index + 1}. ${entry.name} - ${entry.score}`, {
-                fontSize: '18px',
-                color: '#00ff00'
-            });
-        });
+        // Textstil definieren
+        const textStyle = {
+            fontFamily: 'Arial',
+            fontSize: `${height * 0.25}px`,  // ca. die Hälfte des Bildschirms
+            color: '#ff0000',
+            align: 'center'
+        };
 
+        // Game Over Text erstellen
+        this.add.text(width / 2, height / 2 - (height * 0.125), 'GAME', textStyle).setOrigin(0.5);
+        this.add.text(width / 2, height / 2 + (height * 0.125), 'OVER', textStyle).setOrigin(0.5);
 
+        if (isHighscore('Breakout',score)) {
+            insertHighscore('Breakout', 'SON', score);
+        }
+        this.time.delayedCall(5000, () => {this.scene.start('Splashscreen')});
+    }
+}
 
-        // Score Text
-        this.scoreText = this.add.text(10, 200, 'Score: 0', {
+class UIScene extends Phaser.Scene {
+    constructor ()
+    {
+        super({ key: 'UIScene', active: true }); // Immer aktiv
+    }
+    create () {
+        this.closeButton = this.add.text(this.scale.width - 30, 30, 'X', {
             fontSize: '32px',
-            color: '#ffffff'
-        });
+            color: '#ffffff',
+            fontStyle: 'bold'
+        }).setInteractive();
+        // Zentrieren (damit das "X" nicht abgeschnitten ist)
+        this.closeButton.setOrigin(0.5);
+        // Klick-Ereignis hinzufügen
+        this.closeButton.on('pointerdown', () => {this.scene.start('QuitGame')}, this); 
+    }
+}
 
-        // Beispiel: Klick erhöht den Score
-        this.input.on('pointerdown', () => {
-            this.score += Math.floor(Math.random() * 50) + 10; // Zufälliger Score
-            this.scoreText.setText('Score: ' + this.score);
-        });
-
-        // Spielende nach 5 Sekunden
-        this.time.delayedCall(5000, () => {this.scene.start('Breakout')});
-        highScore=highscores
+class SplashScreen extends Phaser.Scene {
+    constructor() {
+        super({ key: 'Splashscreen' });
+        score = 0;
+        this.mousePressed=false;
+        this.spacePressed=false;
+        this.startPressed=false;
+        this.quitPressed=false;
     }
 
-    gameOver() {
-        // Spielername simuliert
-        const playerName = prompt("Name eingeben (3 Zeichen):") || "NNN";
-        saveHighscore(this.gameName, playerName, this.score);
-        console.log('Spiel vorbei!');
-        this.scene.restart();
+    preload() {
+        this.load.setBaseURL('.');
+        this.load.image('background', 'assets/ChatGPT Image 30. März 2025, 00_41_42.png'); // Pfad zum Bild
+    }
+
+    create() {
+        // Nächste Szene bei Pointerdown, X
+        // Zurück bei Quadrat
+        // Highscores laden und anzeigen
+
+        this.background = this.add.image(0, 0, 'background').setOrigin(0);
+
+        // Bildschirmbreite und -höhe ermitteln
+        const { width, height } = this.sys.game.config;
+    
+        // Hintergrund skalieren
+        this.background.setDisplaySize(width, height);
+
+        this.add.text(
+            this.scale.width / 2,                  // X-Koordinate (zentriert)
+            this.scale.height - 20,                // Y-Koordinate (20px vom unteren Rand)
+            'Drücke <Start> oder die Maustaste um forzufahren',                      // Beliebiger Text
+            {
+                fontSize: '18px',                   // Schriftgröße
+                color: '#ffffff',                  // Dunkelblau (Hex-Farbe)
+                align: 'center'                    // Zentrierte Ausrichtung
+            }
+        ).setOrigin(0.5, 1);                       // Ursprung: Mitte unten
+
+        // Spielende nach 5 Sekunden
+        // this.time.delayedCall(5000, () => {this.scene.start('Breakout')});
+
+    }
+
+    update () {
+        // Überprüfen auf Maustaste (gedrückt)
+        if (this.input.activePointer.isDown) {
+            this.mousePressed = true;  // Markiere als gedrückt
+        }
+        // Wenn die Maustaste losgelassen wurde (nachdem sie vorher gedrückt war)
+        if (this.mousePressed && !this.input.activePointer.isDown) {
+            this.mousePressed = false;  // Status zurücksetzen
+            this.scene.start('Breakout');  // Szene starten
+        }
+
+        // Überprüfen auf Space-Taste (gedrückt)
+        if (this.input.keyboard.checkDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE))) {
+            this.spacePressed = true;
+        }
+        // Überprüfen auf Space-Taste (losgelassen)
+        if (this.spacePressed && !this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).isDown) {
+            this.spacePressed = false;
+            this.scene.start('Breakout');
+        }
+
+        if (this.input.gamepad.total !== 0) {
+            // return to launcher - square pressed
+            if (this.input.gamepad.getPad(0).buttons[2].pressed) {
+                console.log("Square pressed")
+                this.scene.start('QuitGame');
+            }
+            // start game - X pressed
+            if (this.input.gamepad.getPad(0).buttons[0].pressed) {
+                this.startPressed = true;
+            }
+            if (this.startPressed && !this.input.gamepad.getPad(0).buttons[0].pressed) {
+                this.startPressed = false;
+                this.scene.start('Breakout');
+            }
+
+        }
+
+
+
+
+
+
+
+        // Überprüfen auf Gamepad-Taste X
+        console.log(this.gamepad);
+        if (this.gamepad && this.gamepad.buttons[2].pressed) {  // Button 2 ist die X-Taste auf Xbox-Controllern
+            this.scene.start('Breakout');
+        }
     }
 }
 
@@ -271,7 +369,7 @@ const config = {
     width: xsize,
     height: ysize,
     parent: 'Breakout',
-    scene: [ SplashScreen, Breakout, GameOver  ],
+    scene: [ SplashScreen, Breakout, QuitGame, GameOver, UIScene ],
     physics: {
         default: 'arcade'
     },
@@ -280,68 +378,95 @@ const config = {
     }
 };
 
-
 const game = new Phaser.Game(config);
-
-
-
 
 /**
  
-const { loadHighscores, saveHighscore } = require('./highscoreManager');
+https://phaser.io/examples/v3.85.0/fx/glow/view/glow-text
 
-class MyGame extends Phaser.Scene {
-    constructor() {
-        super({ key: 'MyGame' });
-        this.score = 0;
-        this.gameName = 'SuperGame'; // Name des Spiels
+
+firework
+https://codepen.io/samme/pen/ZEdpMBv
+
+
+
+class Starfield extends Phaser.Scene {
+
+    constructor ()
+    {
+        super({ key: 'Starfield', active: true });
+
+        this.stars;
+
+        this.distance = 300;
+        this.speed = 250;
+
+        this.max = 500;
+        this.xx = [];
+        this.yy = [];
+        this.zz = [];
     }
 
-    create() {
-        // Highscores laden und anzeigen
-        const highscores = loadHighscores(this.gameName);
-
-        this.add.text(10, 10, 'Highscores:', { fontSize: '20px', color: '#ffffff' });
-        highscores.forEach((entry, index) => {
-            this.add.text(10, 40 + index * 30, `${index + 1}. ${entry.name} - ${entry.score}`, {
-                fontSize: '18px',
-                color: '#00ff00'
-            });
-        });
-
-        // Score Text
-        this.scoreText = this.add.text(10, 200, 'Score: 0', {
-            fontSize: '32px',
-            color: '#ffffff'
-        });
-
-        // Beispiel: Klick erhöht den Score
-        this.input.on('pointerdown', () => {
-            this.score += Math.floor(Math.random() * 50) + 10; // Zufälliger Score
-            this.scoreText.setText('Score: ' + this.score);
-        });
-
-        // Spielende nach 5 Sekunden
-        this.time.delayedCall(5000, () => this.gameOver());
+    preload ()
+    {
+        this.load.setBaseURL('https://cdn.phaserfiles.com/v355');
+        this.load.image('star', 'assets/demoscene/star4.png');
     }
 
-    gameOver() {
-        // Spielername simuliert
-        const playerName = prompt("Name eingeben (3 Zeichen):") || "NNN";
-        saveHighscore(this.gameName, playerName, this.score);
-        console.log('Spiel vorbei!');
-        this.scene.restart();
+    create ()
+    {
+        //  Do this, otherwise this Scene will steal all keyboard input
+        this.input.keyboard.enabled = false;
+
+        this.stars = this.add.blitter(0, 0, 'star');
+
+        for (let i = 0; i < this.max; i++)
+        {
+            this.xx[i] = Math.floor(Math.random() * 800) - 400;
+            this.yy[i] = Math.floor(Math.random() * 600) - 300;
+            this.zz[i] = Math.floor(Math.random() * 1700) - 100;
+
+            let perspective = this.distance / (this.distance - this.zz[i]);
+            let x = 400 + this.xx[i] * perspective;
+            let y = 300 + this.yy[i] * perspective;
+
+            this.stars.create(x, y);
+        }
     }
+
+    update (time, delta)
+    {
+        for (let i = 0; i < this.max; i++)
+        {
+            let perspective = this.distance / (this.distance - this.zz[i]);
+            let x = 400 + this.xx[i] * perspective;
+            let y = 300 + this.yy[i] * perspective;
+
+            this.zz[i] += this.speed * (delta / 1000);
+
+            if (this.zz[i] > 300)
+            {
+                this.zz[i] -= 600;
+            }
+
+            let bob = this.stars.children.list[i];
+
+            bob.x = x;
+            bob.y = y;
+        }
+    }
+
 }
 
-const config = {
-    type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    scene: MyGame
-};
 
-const game = new Phaser.Game(config);
+
+
+
+
+
+
+
+
 
 
 
