@@ -341,18 +341,13 @@ class SplashScreen extends Phaser.Scene {
             }
 
         }
-
-
-
-
-
-
-
+/*
         // Überprüfen auf Gamepad-Taste X
         console.log(this.gamepad);
         if (this.gamepad && this.gamepad.buttons[2].pressed) {  // Button 2 ist die X-Taste auf Xbox-Controllern
             this.scene.start('Breakout');
         }
+            */
     }
 }
 
@@ -466,7 +461,8 @@ class Starfield extends Phaser.Scene {
 
 
 
-
+Shine .... https://phaser.io/examples/v3.85.0/fx/shine/view/tilemap-layer-shine
+https://phaser.io/examples/v3.85.0/fx/shine/view/blitter-shine
 
 
 

@@ -21,3 +21,11 @@ Eigene Spiele können einfach über die Datei index.html hinzugefügt werden. Zu
 ##Assets für eigene Spiele runterladen
 
 Dateien aus dem Internet kann man einfach mit *wget dateiname* herunterladen. 
+
+
+Begrifferklärung
+
+Was sind **Assets**?
+Assets sind unterschiedlichste Komponenten eines Spiels. Dies ist meist eine Grafik oder ein Sound, der im Spiel verwendet wird. Assets sollten lokal gespeichert werden, damit ein Spiel auch gänzlich ohne Internetverbindung gespielt werden kann. 
+
+
