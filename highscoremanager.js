@@ -1,10 +1,12 @@
+/*
+
 const fs = require('fs');
 const path = require('path');
 
 const filePath = path.join(__dirname, 'highscores.json');
 
 // Hilfsfunktion zum Laden der Highscores
-function loadHighscores(gameName) {
+export function loadHighscores(gameName) {
     try {
         if (fs.existsSync(filePath)) {
             const data = fs.readFileSync(filePath, 'utf8');
@@ -22,7 +24,7 @@ function loadHighscores(gameName) {
 }
 
 // Hilfsfunktion zum Speichern der Highscores
-function saveHighscores(gameName, highscores) {
+export function saveHighscores(gameName, highscores) {
     try {
         let allHighscores = {};
         if (fs.existsSync(filePath)) {
@@ -36,14 +38,14 @@ function saveHighscores(gameName, highscores) {
 }
 
 // Überprüfen, ob ein Score unter die Top 5 kommt
-function isHighscore(gameName, score) {
+export function isHighscore(gameName, score) {
     const highscores = loadHighscores(gameName);
     // Prüfen, ob der Score größer als der schlechteste in der Liste ist
     return score > highscores[4].score;
 }
 
 // Score einfügen und sortieren
-function insertHighscore(gameName, playerName, score) {
+export function insertHighscore(gameName, playerName, score) {
     // Highscores laden
     let highscores = loadHighscores(gameName);
 
@@ -62,11 +64,38 @@ function insertHighscore(gameName, playerName, score) {
 }
 
 // Höchsten Highscore für ein Spiel zurückgeben
-function getHighestScore(gameName) {
+export function getHighestScore(gameName) {
     const highscores = loadHighscores(gameName);
     // Der höchste Highscore ist der erste in der sortierten Liste
     return highscores[0]?.score || 0;
 }
 
-// Korrekte Exporte
-module.exports = { loadHighscores, isHighscore, insertHighscore, getHighestScore };
+*/
+
+export function loadHighscores(gameName) {
+    return Array(5).fill({ name: "---", score: 0 });
+}
+
+// Hilfsfunktion zum Speichern der Highscores
+export function saveHighscores(gameName, highscores) {
+
+}
+
+// Überprüfen, ob ein Score unter die Top 5 kommt
+export function isHighscore(gameName, score) {
+    const highscores = loadHighscores(gameName);
+    // Prüfen, ob der Score größer als der schlechteste in der Liste ist
+    return score > highscores[4].score;
+}
+
+// Score einfügen und sortieren
+export function insertHighscore(gameName, playerName, score) {
+
+}
+
+// Höchsten Highscore für ein Spiel zurückgeben
+export function getHighestScore(gameName) {
+    const highscores = loadHighscores(gameName);
+    // Der höchste Highscore ist der erste in der sortierten Liste
+    return highscores[0]?.score || 0;
+}

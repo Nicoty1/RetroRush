@@ -1,10 +1,13 @@
+import { edgeTrigger} from '../helper.js';
+import { loadHighscores, insertHighscore, isHighscore, getHighestScore } from '../highscoremanager.js';
+
 //  Direction consts
 const UP = 0;
 const DOWN = 1;
 const LEFT = 2;
 const RIGHT = 3;
 
-const GRID_X = 40;
+const GRID_X = 50;
 const GRID_Y = 30;
 
 class GameOver extends Phaser.Scene {
@@ -33,20 +36,19 @@ class MainScene extends Phaser.Scene {
         this.load.image('food', 'assets/food.png');
         this.load.image('body', 'assets/body.png');
         this.load.image('head', 'assets/head.png');
+        this.load.image('background', 'assets/grass03.png');
         this.input.setDefaultCursor('none')
     }
 
     create ()
     {
-        this.closeButton = this.add.text(this.scale.width - 30, 30, 'X', {
-            fontSize: '32px',
-            color: '#ffffff',
-            fontStyle: 'bold'
-        }).setInteractive();
-        // Zentrieren (damit das "X" nicht abgeschnitten ist)
-        this.closeButton.setOrigin(0.5);
-        // Klick-Ereignis hinzufügen
-        this.closeButton.on('pointerdown', () => {this.scene.start('GameOver')}, this);
+        this.background = this.add.image(0, 0, 'background').setOrigin(0);
+
+        // Bildschirmbreite und -höhe ermitteln
+        const { width, height } = this.sys.game.config;
+    
+        // Hintergrund skalieren
+        this.background.setDisplaySize(width, height);
 
         var Food = new Phaser.Class({
 
@@ -313,7 +315,8 @@ class MainScene extends Phaser.Scene {
         if (!this.snake.alive)
         {
             console.log("Snake hat sich gegessen ;-)")
-            this.scene.start('GameOver');
+            // Switch to Gameove once its ready
+            this.scene.start('QuitGame');
             return;
         }
 
@@ -348,7 +351,7 @@ class MainScene extends Phaser.Scene {
             }
             else if (pad.X) {
                 console.log("Square pressed")
-                this.scene.start('GameOver');
+                this.scene.start('QuitGame');
             }
         }
 
@@ -371,7 +374,7 @@ class MainScene extends Phaser.Scene {
 
         if (this.input.activePointer.rightButtonDown()) {
             console.log("Mouse right pressed")
-            this.scene.start('GameOver');
+            this.scene.start('QuitGame');
         }
 
         if (this.snake.update(time))
@@ -389,13 +392,53 @@ class MainScene extends Phaser.Scene {
 
 }
 
+class QuitGame extends Phaser.Scene {
+    constructor ()
+    {
+        super({ key: 'QuitGame' });
+    }
+    create () {
+        if (isHighscore('Snake',score)) {
+            insertHighscore('Snake', 'SON', score);
+        }
+
+        // Zerstört das Spiel sofort
+        this.game.destroy(true);
+        window.location.href = "../index.html";
+    }
+}
+
+class UIScene extends Phaser.Scene {
+    constructor ()
+    {
+        super({ key: 'UIScene', active: true }); // Immer aktiv
+    }
+    create () {
+        this.closeButton = this.add.text(this.scale.width - 30, 30, 'X', {
+            fontSize: '32px',
+            color: '#ffffff',
+            fontStyle: 'bold'
+        }).setInteractive();
+        // Zentrieren (damit das "X" nicht abgeschnitten ist)
+        this.closeButton.setOrigin(0.5);
+        // Klick-Ereignis hinzufügen
+        this.closeButton.on('pointerdown', () => {this.scene.start('QuitGame')}, this); 
+    }
+}
+
+
+const xsize = 800  // 796
+const ysize = 480  // 476
+let score = 0;
+let highScore = 0;
+
 var config = {
     type: Phaser.WEBGL,
-    width: 640,
-    height: 480,
-    backgroundColor: '#bfcc00',
+    width: xsize,
+    height: ysize,
+    backgroundColor: '#000000',
     parent: 'phaser-example',
-    scene: [MainScene, GameOver],
+    scene: [MainScene, GameOver, UIScene, QuitGame],
     input: {
         gamepad: true
     }

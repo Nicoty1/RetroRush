@@ -16,8 +16,8 @@ class MainScene extends Phaser.Scene
 
     preload ()
     {
-        this.load.setBaseURL('https://cdn.phaserfiles.com/v385');
-        this.load.image('sky', 'assets/skies/lightblue.png');
+        this.load.setBaseURL('.');
+        this.load.image('sky', 'assets/lightblue.png');
         this.input.setDefaultCursor('none')
     }
 

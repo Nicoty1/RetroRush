@@ -1,4 +1,9 @@
-const { loadHighscores, insertHighscore, isHighscore, getHighestScore } = require('../highscoremanager');
+
+import { edgeTrigger} from '../helper.js';
+
+import { loadHighscores, insertHighscore, isHighscore, getHighestScore } from '../highscoremanager.js';
+
+
 
 class Breakout extends Phaser.Scene
 {
@@ -96,19 +101,6 @@ class Breakout extends Phaser.Scene
             color: '#ffffff',
             fontStyle: 'bold'
         });
-
-
-/*
-        this.closeButton = this.add.text(this.scale.width - 30, 30, 'X', {
-            fontSize: '32px',
-            color: '#ffffff',
-            fontStyle: 'bold'
-        }).setInteractive();
-        // Zentrieren (damit das "X" nicht abgeschnitten ist)
-        this.closeButton.setOrigin(0.5);
-        // Klick-Ereignis hinzufügen
-        this.closeButton.on('pointerdown', () => {this.scene.start('QuitGame')}, this); 
-*/
         this.gamestart.play();
     }
 
@@ -122,7 +114,6 @@ class Breakout extends Phaser.Scene
         }
         //scoreIncrement++;
         score+=scoreIncrement;
-
     }
 
     resetBall ()
@@ -218,6 +209,10 @@ class GameOver extends Phaser.Scene {
     constructor ()
     {
         super({ key: 'GameOver' });
+        this.mousePressed = { value: false };
+        this.spacePressed = { value: false };
+        this.startPressed = { value: false };
+        this.quitPressed = { value: false };
     }
 
     create() {
@@ -234,11 +229,37 @@ class GameOver extends Phaser.Scene {
         // Game Over Text erstellen
         this.add.text(width / 2, height / 2 - (height * 0.125), 'GAME', textStyle).setOrigin(0.5);
         this.add.text(width / 2, height / 2 + (height * 0.125), 'OVER', textStyle).setOrigin(0.5);
-
+        this.add.text(
+            this.scale.width / 2,                  // X-Koordinate (zentriert)
+            this.scale.height - 20,                // Y-Koordinate (20px vom unteren Rand)
+            'Drücke <Start> oder die Maustaste um forzufahren',                      // Beliebiger Text
+            {
+                fontSize: '18px',                   // Schriftgröße
+                color: '#ffffff',                  // Dunkelblau (Hex-Farbe)
+                align: 'center'                    // Zentrierte Ausrichtung
+            }
+        ).setOrigin(0.5, 1);                       // Ursprung: Mitte unten
         if (isHighscore('Breakout',score)) {
             insertHighscore('Breakout', 'SON', score);
         }
-        this.time.delayedCall(5000, () => {this.scene.start('Splashscreen')});
+    }
+
+    update() {
+        if (edgeTrigger(this.mousePressed,this.input.activePointer.isDown)) {
+            this.scene.start('Splashscreen');  // Szene starten           
+        }    
+        if (edgeTrigger(this.spacePressed,this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).isDown)) {
+            this.scene.start('Splashscreen');  // Szene starten           
+        }    
+        if (this.input.gamepad.total !== 0) {
+            // return to launcher - square pressed    
+            if (edgeTrigger(this.startPressed,this.input.gamepad.getPad(0).buttons[0].pressed)) {
+                this.scene.start('Splashscreen');
+            }
+            if (edgeTrigger(this.quitPressed,this.input.gamepad.getPad(0).buttons[2].pressed)) {
+                this.scene.start('Splashscreen');
+            }
+        }
     }
 }
 
@@ -263,11 +284,11 @@ class UIScene extends Phaser.Scene {
 class SplashScreen extends Phaser.Scene {
     constructor() {
         super({ key: 'Splashscreen' });
-        score = 0;
-        this.mousePressed=false;
-        this.spacePressed=false;
-        this.startPressed=false;
-        this.quitPressed=false;
+        score = 0;  // globale variable
+        this.mousePressed = { value: false };
+        this.spacePressed = { value: false };
+        this.startPressed = { value: false };
+        this.quitPressed = { value: false };
     }
 
     preload() {
@@ -276,10 +297,6 @@ class SplashScreen extends Phaser.Scene {
     }
 
     create() {
-        // Nächste Szene bei Pointerdown, X
-        // Zurück bei Quadrat
-        // Highscores laden und anzeigen
-
         this.background = this.add.image(0, 0, 'background').setOrigin(0);
 
         // Bildschirmbreite und -höhe ermitteln
@@ -305,51 +322,24 @@ class SplashScreen extends Phaser.Scene {
     }
 
     update () {
-        // Überprüfen auf Maustaste (gedrückt)
-        if (this.input.activePointer.isDown) {
-            this.mousePressed = true;  // Markiere als gedrückt
-        }
-        // Wenn die Maustaste losgelassen wurde (nachdem sie vorher gedrückt war)
-        if (this.mousePressed && !this.input.activePointer.isDown) {
-            this.mousePressed = false;  // Status zurücksetzen
-            this.scene.start('Breakout');  // Szene starten
-        }
-
-        // Überprüfen auf Space-Taste (gedrückt)
-        if (this.input.keyboard.checkDown(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE))) {
-            this.spacePressed = true;
-        }
-        // Überprüfen auf Space-Taste (losgelassen)
-        if (this.spacePressed && !this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).isDown) {
-            this.spacePressed = false;
-            this.scene.start('Breakout');
-        }
-
+        if (edgeTrigger(this.mousePressed,this.input.activePointer.isDown)) {
+            this.scene.start('Breakout');  // Szene starten           
+        }    
+        if (edgeTrigger(this.spacePressed,this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).isDown)) {
+            this.scene.start('Breakout');  // Szene starten           
+        }    
         if (this.input.gamepad.total !== 0) {
-            // return to launcher - square pressed
-            if (this.input.gamepad.getPad(0).buttons[2].pressed) {
-                console.log("Square pressed")
-                this.scene.start('QuitGame');
-            }
-            // start game - X pressed
-            if (this.input.gamepad.getPad(0).buttons[0].pressed) {
-                this.startPressed = true;
-            }
-            if (this.startPressed && !this.input.gamepad.getPad(0).buttons[0].pressed) {
-                this.startPressed = false;
+            // return to launcher - square pressed    
+            if (edgeTrigger(this.startPressed,this.input.gamepad.getPad(0).buttons[0].pressed)) {
                 this.scene.start('Breakout');
             }
-
+            if (edgeTrigger(this.quitPressed,this.input.gamepad.getPad(0).buttons[2].pressed)) {
+                this.scene.start('QuitGame');
+            }
         }
-/*
-        // Überprüfen auf Gamepad-Taste X
-        console.log(this.gamepad);
-        if (this.gamepad && this.gamepad.buttons[2].pressed) {  // Button 2 ist die X-Taste auf Xbox-Controllern
-            this.scene.start('Breakout');
-        }
-            */
     }
 }
+
 
 const xsize = 800  // 796
 const ysize = 480  // 476
