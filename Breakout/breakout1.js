@@ -232,7 +232,7 @@ class GameOver extends Phaser.Scene {
         this.add.text(
             this.scale.width / 2,                  // X-Koordinate (zentriert)
             this.scale.height - 20,                // Y-Koordinate (20px vom unteren Rand)
-            'Drücke <Start> oder die Maustaste um forzufahren',                      // Beliebiger Text
+            'Drücke <Start> oder die Maustaste um fortzufahren',                      // Beliebiger Text
             {
                 fontSize: '18px',                   // Schriftgröße
                 color: '#ffffff',                  // Dunkelblau (Hex-Farbe)
@@ -308,7 +308,7 @@ class SplashScreen extends Phaser.Scene {
         this.add.text(
             this.scale.width / 2,                  // X-Koordinate (zentriert)
             this.scale.height - 20,                // Y-Koordinate (20px vom unteren Rand)
-            'Drücke <Start> oder die Maustaste um forzufahren',                      // Beliebiger Text
+            'Drücke <Start> oder die Maustaste um fortzufahren',                      // Beliebiger Text
             {
                 fontSize: '18px',                   // Schriftgröße
                 color: '#ffffff',                  // Dunkelblau (Hex-Farbe)

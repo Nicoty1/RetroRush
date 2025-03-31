@@ -36,13 +36,13 @@ class MainScene extends Phaser.Scene {
         this.load.image('food', 'assets/food.png');
         this.load.image('body', 'assets/body.png');
         this.load.image('head', 'assets/head.png');
-        this.load.image('background', 'assets/grass03.png');
+        this.load.image('grass', 'assets/grass03.png');
         this.input.setDefaultCursor('none')
     }
 
     create ()
     {
-        this.background = this.add.image(0, 0, 'background').setOrigin(0);
+        this.background = this.add.image(0, 0, 'grass').setOrigin(0);
 
         // Bildschirmbreite und -höhe ermitteln
         const { width, height } = this.sys.game.config;
@@ -426,6 +426,68 @@ class UIScene extends Phaser.Scene {
     }
 }
 
+class SplashScreen extends Phaser.Scene {
+    constructor() {
+        super({ key: 'Splashscreen' });
+        score = 0;  // globale variable
+        this.mousePressed = { value: false };
+        this.spacePressed = { value: false };
+        this.startPressed = { value: false };
+        this.quitPressed = { value: false };
+    }
+
+    preload() {
+        this.load.setBaseURL('.');
+        this.load.image('background', 'assets/splashscreen.jpg'); // Pfad zum Bild
+    }
+
+    create() {
+        this.background = this.add.image(0, 0, 'background').setOrigin(0);
+
+        // Bildschirmbreite und -höhe ermitteln
+        const { width, height } = this.sys.game.config;
+    
+        // Hintergrund skalieren
+        this.background.setDisplaySize(width, height);
+
+        this.add.text(
+            this.scale.width / 2,                  // X-Koordinate (zentriert)
+            this.scale.height - 20,                // Y-Koordinate (20px vom unteren Rand)
+            'Drücke <Start> oder die Maustaste um fortzufahren',                      // Beliebiger Text
+            {
+                fontSize: '18px',               // Schriftgröße
+                fontFamily: 'Arial',            // Schriftart
+                color: '#ffffff',               // Textfarbe (Weiß)
+                stroke: '#006400',              // Outline-Farbe (Dunkelgrün)
+                strokeThickness: 5,             // Dicke der Outline
+                align: 'center'                 // Zentrierte Ausrichtung
+            }
+        ).setOrigin(0.5, 1);                       // Ursprung: Mitte unten
+
+        // Spielende nach 5 Sekunden
+        // this.time.delayedCall(5000, () => {this.scene.start('Breakout')});
+
+    }
+
+    update () {
+        if (edgeTrigger(this.mousePressed,this.input.activePointer.isDown)) {
+            this.scene.start('MainScene');  // Szene starten           
+        }    
+        if (edgeTrigger(this.spacePressed,this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).isDown)) {
+            this.scene.start('MainScene');  // Szene starten           
+        }    
+        if (this.input.gamepad.total !== 0) {
+            if (edgeTrigger(this.startPressed,this.input.gamepad.getPad(0).buttons[0].pressed)) {
+                this.scene.start('MainScene');
+            }
+            if (edgeTrigger(this.quitPressed,this.input.gamepad.getPad(0).buttons[2].pressed)) {
+                this.scene.start('QuitGame');
+            }
+        }
+    }
+}
+
+
 
 const xsize = 800  // 796
 const ysize = 480  // 476
@@ -438,7 +500,7 @@ var config = {
     height: ysize,
     backgroundColor: '#000000',
     parent: 'phaser-example',
-    scene: [MainScene, GameOver, UIScene, QuitGame],
+    scene: [SplashScreen, MainScene, GameOver, UIScene, QuitGame],
     input: {
         gamepad: true
     }
