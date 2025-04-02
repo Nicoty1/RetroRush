@@ -10,18 +10,6 @@ const RIGHT = 3;
 const GRID_X = 50;
 const GRID_Y = 30;
 
-class GameOver extends Phaser.Scene {
-    constructor ()
-    {
-        super({ key: 'GameOver' });
-    }
-    create () {
-      // Zerstört das Spiel sofort
-      this.game.destroy(true);
-      window.location.href = "../index.html";
-    }
-}
-
 class MainScene extends Phaser.Scene {
     constructor() {
         super({ key: 'MainScene' });
@@ -261,6 +249,10 @@ class MainScene extends Phaser.Scene {
     */
     repositionFood ()
     {
+
+        this.scene.start('GameOver');
+
+
         //  First create an array that assumes all positions
         //  are valid for the new piece of food
 
@@ -316,7 +308,7 @@ class MainScene extends Phaser.Scene {
         {
             console.log("Snake hat sich gegessen ;-)")
             // Switch to Gameove once its ready
-            this.scene.start('QuitGame');
+            this.scene.start('GameOver');
             return;
         }
 
@@ -351,6 +343,7 @@ class MainScene extends Phaser.Scene {
             }
             else if (pad.X) {
                 console.log("Square pressed")
+                //this.scene.start('GameOver');
                 this.scene.start('QuitGame');
             }
         }
@@ -405,6 +398,80 @@ class QuitGame extends Phaser.Scene {
         // Zerstört das Spiel sofort
         this.game.destroy(true);
         window.location.href = "../index.html";
+    }
+}
+
+class GameOver extends Phaser.Scene {
+    constructor ()
+    {
+        super({ key: 'GameOver' });
+        this.mousePressed = { value: false };
+        this.spacePressed = { value: false };
+        this.startPressed = { value: false };
+        this.quitPressed = { value: false };
+    }
+
+    preload() {
+        this.load.setBaseURL('.');
+        this.load.image('gameover', 'assets/gameover.jpg'); // Pfad zum Bild
+    }
+
+    create() {
+        this.background = this.add.image(0, 0, 'gameover').setOrigin(0);
+        this.background.setAlpha(0.5); 
+
+        // Bildschirmbreite und -höhe ermitteln
+        const { width, height } = this.sys.game.config;
+    
+        // Hintergrund skalieren
+        this.background.setDisplaySize(width, height);
+
+        this.add.text(
+            this.scale.width / 2,                  // X-Koordinate (zentriert)
+            this.scale.height - 20,                // Y-Koordinate (20px vom unteren Rand)
+            'Drücke <Start> oder die Maustaste um fortzufahren',                      // Beliebiger Text
+            {
+                fontSize: '18px',               // Schriftgröße
+                fontFamily: 'Arial',            // Schriftart
+                color: '#ffffff',               // Textfarbe (Weiß)
+                stroke: '#006400',              // Outline-Farbe (Dunkelgrün)
+                strokeThickness: 5,             // Dicke der Outline
+                align: 'center'                 // Zentrierte Ausrichtung
+            }
+        ).setOrigin(0.5, 1);                       // Ursprung: Mitte unten
+        // Textstil definieren
+        const textStyle = {
+            fontFamily: 'Arial',
+            fontSize: `${height * 0.25}px`,  // ca. die Hälfte des Bildschirms
+            color: '#ff0000',
+            align: 'center'
+        };
+        // Game Over Text erstellen
+        this.add.text(width / 2, height / 2 - (height * 0.125), 'GAME', textStyle).setOrigin(0.5);
+        this.add.text(width / 2, height / 2 + (height * 0.125), 'OVER', textStyle).setOrigin(0.5);
+
+        if (isHighscore('Snake',score)) {
+            insertHighscore('Snake', 'SON', score);
+        }
+    }
+
+    update() {
+        console.log('update started');
+        if (edgeTrigger(this.mousePressed,this.input.activePointer.isDown)) {
+            this.scene.start('Splashscreen');  // Szene starten           
+        }    
+        if (edgeTrigger(this.spacePressed,this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).isDown)) {
+            this.scene.start('Splashscreen');  // Szene starten           
+        }    
+        if (this.input.gamepad.total !== 0) {
+            // return to launcher - square pressed    
+            if (edgeTrigger(this.startPressed,this.input.gamepad.getPad(0).buttons[0].pressed)) {
+                this.scene.start('Splashscreen');
+            }
+            if (edgeTrigger(this.quitPressed,this.input.gamepad.getPad(0).buttons[2].pressed)) {
+                this.scene.start('Splashscreen');
+            }
+        }
     }
 }
 
