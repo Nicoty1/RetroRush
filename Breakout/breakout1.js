@@ -230,8 +230,22 @@ class GameOver extends Phaser.Scene {
         this.quitPressed = { value: false };
     }
 
+    preload() {
+        this.load.setBaseURL('.');
+        this.load.image('gameover', 'assets/gameover.png'); // Pfad zum Bild
+    }
+
     create() {
-        const { width, height } = this.scale;
+
+        this.background = this.add.image(0, 0, 'gameover').setOrigin(0);
+        this.background.setAlpha(0.5); 
+
+        // Bildschirmbreite und -höhe ermitteln
+        const { width, height } = this.sys.game.config;
+    
+        // Hintergrund skalieren
+        this.background.setDisplaySize(width, height);
+        // const { width, height } = this.scale;
 
         // Textstil definieren
         const textStyle = {
@@ -311,7 +325,7 @@ class SplashScreen extends Phaser.Scene {
 
     preload() {
         this.load.setBaseURL('.');
-        this.load.image('background', 'assets/ChatGPT Image 30. März 2025, 00_41_42.png'); // Pfad zum Bild
+        this.load.image('background', 'assets/splashscreen.png'); // Pfad zum Bild
     }
 
     create() {
