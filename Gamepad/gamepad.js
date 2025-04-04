@@ -1,3 +1,22 @@
+import { edgeTrigger, isElectron} from '../helper.js';
+
+class InitGame extends Phaser.Scene {
+    constructor ()
+    {
+        super({ key: 'InitGame' });
+    }
+    create () {
+        const storedIndex = localStorage.getItem('selectedPadRetroRush');
+        if (storedIndex!==null) {
+            gamepadToUse=storedIndex;
+        }
+        if (isElectron()) {
+            this.input.setDefaultCursor('none')
+        }
+        this.scene.start('MainScene')
+    }
+}
+
 class GameOver extends Phaser.Scene {
     constructor ()
     {
@@ -5,6 +24,8 @@ class GameOver extends Phaser.Scene {
     }
     create () {
         // Zerstört das Spiel sofort
+        localStorage.setItem('selectedPadRetroRush', gamepadToUse);
+        console.log(`Gamepad-Index ${gamepadToUse} gespeichert.`);
         this.game.destroy(true);
         window.location.href = "../index.html";
     }
@@ -14,11 +35,22 @@ class MainScene extends Phaser.Scene
 {
     text;
 
+    constructor ()
+    {
+        super({ key: 'MainScene' });
+    }
+
     preload ()
     {
         this.load.setBaseURL('.');
         this.load.image('sky', 'assets/lightblue.png');
-        this.input.setDefaultCursor('none')
+        this.input.gamepad.once('connected', (pad) => {
+            console.log(`Gamepad angeschlossen: ${pad.id}`);
+            //this.activeGamepad = pad;
+        });
+        if (isElectron()) {
+            this.input.setDefaultCursor('none')
+        }
     }
 
     create ()
@@ -35,93 +67,154 @@ class MainScene extends Phaser.Scene
         this.closeButton.setOrigin(0.5);
         // Klick-Ereignis hinzufügen
         this.closeButton.on('pointerdown', () => {this.scene.start('GameOver')}, this);
+        console.log(`Verwendeter Gamepad-Index: ${gamepadToUse}`);
     }
 
     update ()
     {
         const debug = [];
-        if (this.input.gamepad.total === 0)
-        {
-            return;
-        }
-
-
         const pads = this.input.gamepad.gamepads;
 
-        // var pads = this.input.gamepad.getAll();
-        // var pads = navigator.getGamepads();
+        //console.log(this.input.gamepad.total);
 
-        for (let i = 0; i < pads.length; i++)
-        {
-            const pad = pads[i];
-
-            if (!pad)
-            {
-                continue;
-            }
-
-            //  Timestamp, index. ID
-            debug.push(pad.id);
-            debug.push(`Index: ${pad.index} Timestamp: ${pad.timestamp}`);
-
-            //  Buttons
-
-            let buttons = '';
-
-            for (let b = 0; b < pad.buttons.length; b++)
-            {
-                const button = pad.buttons[b];
-
-                buttons = buttons.concat(`B${button.index}: ${button.value}  `);
-
-                // buttons = buttons.concat('B' + b + ': ' + button.value + '  ');
-
-                if (b === 8)
-                {
-                    debug.push(buttons);
-                    buttons = '';
-                }
-            }
+        if (this.input.gamepad.total !== 0) {
             
-            debug.push(buttons);
-
-            //  Axis
-
-            let axes = '';
-
-            for (let a = 0; a < pad.axes.length; a++)
-            {
-                const axis = pad.axes[a];
-
-                axes = axes.concat(`A${axis.index}: ${axis.getValue()}  `);
-
-                // axes = axes.concat('A' + a + ': ' + axis + '  ');
-
-                if (a === 1)
-                {
-                    debug.push(axes);
-                    axes = '';
-                }
-            }
             
-            debug.push(axes);
-            debug.push('');
+            // const pads = this.input.gamepad.gamepads;
+
+            // var pads = this.input.gamepad.getAll();
+            // var pads = navigator.getGamepads();
+
+            for (let i = 0; i < pads.length; i++)
+            {
+                const pad = pads[i];
+
+                if (!pad)
+                {
+                    continue;
+                }
+
+                if (pad.index==gamepadToUse) {
+                    debug.push(`Das ist das aktuell selektierte Gamepad`);
+                }
+                //  Timestamp, index. ID
+                debug.push(pad.id);
+                debug.push(`Index: ${pad.index} Timestamp: ${pad.timestamp}`);
+
+                //  Buttons
+
+                let buttons = '';
+
+                for (let b = 0; b < pad.buttons.length; b++)
+                {
+                    const button = pad.buttons[b];
+                    buttons = buttons.concat(`B${button.index}: ${button.value}  `);
+                    if (button.value!==0) {
+                        gamepadToUse=pad.index;
+                    }
+                    // Zeilenumbruch nach 9 Buttons (0-8)
+                    if (b === 8)
+                    {
+                        debug.push(buttons);
+                        buttons = '';
+                    }
+                }
+                
+                debug.push(buttons);
+
+                //  Axis
+
+                let axes = '';
+
+                for (let a = 0; a < pad.axes.length; a++)
+                {
+                    const axis = pad.axes[a];
+
+                    axes = axes.concat(`A${axis.index}: ${axis.getValue()}  `);
+
+                    // axes = axes.concat('A' + a + ': ' + axis + '  ');
+
+                    if (a === 1)
+                    {
+                        debug.push(axes);
+                        axes = '';
+                    }
+                }
+                
+                debug.push(axes);
+                debug.push('');
+            }
         }
-        this.text.setVisible(false);
+        //this.text.setVisible(false);
+        debug.push(`Das aktuell selektierte Gamepad hat den Index ${gamepadToUse}`);
         this.text.setText(debug);
-        this.text.setVisible(true);
+        //this.text.setVisible(true);
     }
 }
+
+let gamepadToUse = 0;
 
 const config = {
     type: Phaser.WEBGL,
     parent: 'phaser-example',
     width: 800,
     height: 600,
-    scene: [MainScene, GameOver],
+    scene: [InitGame, MainScene, GameOver],
     input: {
         gamepad: true
     }
 };
 
 const game = new Phaser.Game(config);
+
+/**
+ *
+ * class GamepadScene extends Phaser.Scene {
+    constructor() {
+        super({ key: 'GamepadScene' });
+        this.selectedGamepadIndex = null;
+    }
+
+    create() {
+        // Gamepad-Verbindung überwachen
+        this.input.gamepad.on('connected', (pad) => {
+            console.log(`Gamepad ${pad.index} angeschlossen: ${pad.id}`);
+            this.displayGamepadInfo();
+        });
+
+        // Vorhandene Gamepads anzeigen
+        this.displayGamepadInfo();
+
+        // Auf eine beliebige Taste eines Gamepads warten
+        this.input.gamepad.on('down', (pad, button) => {
+            console.log(`Taste ${button.index} auf Gamepad ${pad.index} gedrückt.`);
+            this.selectedGamepadIndex = pad.index;
+
+            // Index im Local Storage speichern
+            localStorage.setItem('selectedGamepad', pad.index);
+            console.log(`Gamepad-Index ${pad.index} gespeichert.`);
+        });
+    }
+
+    // Zeigt die Informationen aller verbundenen Gamepads an
+    displayGamepadInfo() {
+        if (this.input.gamepad.total === 0) {
+            console.log("Keine Gamepads angeschlossen.");
+            return;
+        }
+
+        console.log("Angeschlossene Gamepads:");
+        this.input.gamepad.gamepads.forEach((pad) => {
+            if (pad) {
+                console.log(`Index: ${pad.index}, ID: ${pad.id}, Tasten: ${pad.buttons.length}`);
+            }
+        });
+    }
+}
+
+
+zugriff: 
+
+
+ * 
+ */

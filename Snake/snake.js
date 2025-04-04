@@ -1,5 +1,5 @@
-import { edgeTrigger} from '../helper.js';
-import { loadHighscores, insertHighscore, isHighscore, getHighestScore } from '../highscoremanager.js';
+import { edgeTrigger, isElectron, checkGamepadIndex} from '../helper.js';
+import { loadHighscores,  insertHighscore, isHighscore, getHighestScore } from '../highscoremanager.js';
 
 //  Direction consts
 const UP = 0;
@@ -9,6 +9,25 @@ const RIGHT = 3;
 
 const GRID_X = 50;
 const GRID_Y = 30;
+
+class InitGame extends Phaser.Scene {
+    constructor ()
+    {
+        super({ key: 'InitGame' });
+    }
+    create () {
+        const storedIndex = localStorage.getItem('selectedPadRetroRush');
+        gamepadToUse = storedIndex !== null ? parseInt(storedIndex, 10) : 0;
+        //if (storedIndex!==null) {
+        //    gamepadToUse=parseInt(storedIndex.valueOf);
+        //}
+        if (isElectron()) {
+            this.input.setDefaultCursor('none')
+        }
+        this.scene.start('SplashScreen')
+    }
+}
+
 
 class MainScene extends Phaser.Scene {
     constructor() {
@@ -25,7 +44,6 @@ class MainScene extends Phaser.Scene {
         this.load.image('body', 'assets/body.png');
         this.load.image('head', 'assets/head.png');
         this.load.image('grass', 'assets/grass03.png');
-        this.input.setDefaultCursor('none')
     }
 
     create ()
@@ -37,6 +55,17 @@ class MainScene extends Phaser.Scene {
     
         // Hintergrund skalieren
         this.background.setDisplaySize(width, height);
+
+        this.scoreText=this.add.text(20,20,'Score: '+score,{
+            fontSize: '32px',
+            color: '#ffffff',
+            fontStyle: 'bold'
+        });
+        this.highScoreText=this.add.text(230,20,'Highscore: '+highScore,{
+            fontSize: '32px',
+            color: '#ffffff',
+            fontStyle: 'bold'
+        });
 
         var Food = new Phaser.Class({
 
@@ -311,7 +340,6 @@ class MainScene extends Phaser.Scene {
             this.scene.start('GameOver');
             return;
         }
-
         /**
         * Check which key is pressed, and then change the direction the snake
         * is heading based on that. The checks ensure you don't double-back
@@ -319,12 +347,9 @@ class MainScene extends Phaser.Scene {
         * the LEFT cursor, it ignores it, because the only valid directions you
         * can move in at that time is up and down.
         */
-
-    
-
         if (this.input.gamepad.total !== 0) {
             let pad;
-            pad = this.input.gamepad.getPad(0);
+            pad = this.input.gamepad.getPad(gamepadToUse);
             if (pad.left)
             {
                 this.snake.faceLeft();
@@ -394,7 +419,6 @@ class QuitGame extends Phaser.Scene {
         if (isHighscore('Snake',score)) {
             insertHighscore('Snake', 'SON', score);
         }
-
         // Zerstört das Spiel sofort
         this.game.destroy(true);
         window.location.href = "../index.html";
@@ -443,7 +467,9 @@ class GameOver extends Phaser.Scene {
         const textStyle = {
             fontFamily: 'Arial',
             fontSize: `${height * 0.25}px`,  // ca. die Hälfte des Bildschirms
-            color: '#ff0000',
+            color: '#ffffff',               // Textfarbe (Weiß)
+            stroke: '#006400',
+            strokeThickness: 8,             // Dicke der Outline
             align: 'center'
         };
         // Game Over Text erstellen
@@ -458,18 +484,18 @@ class GameOver extends Phaser.Scene {
     update() {
         console.log('update started');
         if (edgeTrigger(this.mousePressed,this.input.activePointer.isDown)) {
-            this.scene.start('Splashscreen');  // Szene starten           
+            this.scene.start('SplashScreen');  // Szene starten           
         }    
         if (edgeTrigger(this.spacePressed,this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).isDown)) {
-            this.scene.start('Splashscreen');  // Szene starten           
+            this.scene.start('SplashScreen');  // Szene starten           
         }    
         if (this.input.gamepad.total !== 0) {
             // return to launcher - square pressed    
-            if (edgeTrigger(this.startPressed,this.input.gamepad.getPad(0).buttons[0].pressed)) {
-                this.scene.start('Splashscreen');
+            if (edgeTrigger(this.startPressed,this.input.gamepad.getPad(gamepadToUse).buttons[0].pressed)) {
+                this.scene.start('SplashScreen');
             }
-            if (edgeTrigger(this.quitPressed,this.input.gamepad.getPad(0).buttons[2].pressed)) {
-                this.scene.start('Splashscreen');
+            if (edgeTrigger(this.quitPressed,this.input.gamepad.getPad(gamepadToUse).buttons[2].pressed)) {
+                this.scene.start('SplashScreen');
             }
         }
     }
@@ -490,12 +516,13 @@ class UIScene extends Phaser.Scene {
         this.closeButton.setOrigin(0.5);
         // Klick-Ereignis hinzufügen
         this.closeButton.on('pointerdown', () => {this.scene.start('QuitGame')}, this); 
+        this.input.keyboard.on('keydown-ESC', () => {this.scene.start('QuitGame')}, this);
     }
 }
 
 class SplashScreen extends Phaser.Scene {
     constructor() {
-        super({ key: 'Splashscreen' });
+        super({ key: 'SplashScreen' });
         score = 0;  // globale variable
         this.mousePressed = { value: false };
         this.spacePressed = { value: false };
@@ -510,13 +537,10 @@ class SplashScreen extends Phaser.Scene {
 
     create() {
         this.background = this.add.image(0, 0, 'background').setOrigin(0);
-
         // Bildschirmbreite und -höhe ermitteln
         const { width, height } = this.sys.game.config;
-    
         // Hintergrund skalieren
         this.background.setDisplaySize(width, height);
-
         this.add.text(
             this.scale.width / 2,                  // X-Koordinate (zentriert)
             this.scale.height - 20,                // Y-Koordinate (20px vom unteren Rand)
@@ -530,10 +554,6 @@ class SplashScreen extends Phaser.Scene {
                 align: 'center'                 // Zentrierte Ausrichtung
             }
         ).setOrigin(0.5, 1);                       // Ursprung: Mitte unten
-
-        // Spielende nach 5 Sekunden
-        // this.time.delayedCall(5000, () => {this.scene.start('Breakout')});
-
     }
 
     update () {
@@ -544,10 +564,11 @@ class SplashScreen extends Phaser.Scene {
             this.scene.start('MainScene');  // Szene starten           
         }    
         if (this.input.gamepad.total !== 0) {
-            if (edgeTrigger(this.startPressed,this.input.gamepad.getPad(0).buttons[0].pressed)) {
+            gamepadToUse=checkGamepadIndex(gamepadToUse,this.input.gamepad.total);
+            if (edgeTrigger(this.startPressed,this.input.gamepad.getPad(gamepadToUse).buttons[0].pressed)) {
                 this.scene.start('MainScene');
             }
-            if (edgeTrigger(this.quitPressed,this.input.gamepad.getPad(0).buttons[2].pressed)) {
+            if (edgeTrigger(this.quitPressed,this.input.gamepad.getPad(gamepadToUse).buttons[2].pressed)) {
                 this.scene.start('QuitGame');
             }
         }
@@ -560,6 +581,7 @@ const xsize = 800  // 796
 const ysize = 480  // 476
 let score = 0;
 let highScore = 0;
+let gamepadToUse = 0;
 
 var config = {
     type: Phaser.WEBGL,
@@ -567,7 +589,7 @@ var config = {
     height: ysize,
     backgroundColor: '#000000',
     parent: 'phaser-example',
-    scene: [SplashScreen, MainScene, GameOver, UIScene, QuitGame],
+    scene: [InitGame, SplashScreen, MainScene, GameOver, UIScene, QuitGame],
     input: {
         gamepad: true
     }

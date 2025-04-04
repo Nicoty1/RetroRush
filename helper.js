@@ -13,4 +13,19 @@ export function edgeTrigger(stateObj, currentValue) {
     return false;  // Noch nicht erfüllt
 }
 
+export function isElectron() {
+    return !!(typeof process !== 'undefined' && process.versions && process.versions.electron);
+}
+
+export function checkGamepadIndex(actualIndex,numPads) {
+    if (actualIndex>numPads) {      // prüfen, ob der aktuelle Index größer als Pads -> Pad offenbar abgesteckt
+        return 0;   // 
+    }
+    else {
+        return actualIndex;     // ja, pad gibt es
+    }
+}
+
+
+
 
