@@ -1,9 +1,25 @@
 
-import { edgeTrigger} from '../helper.js';
+import { edgeTrigger, isElectron} from '../helper.js';
 
 import { loadHighscores, insertHighscore, isHighscore, getHighestScore } from '../highscoremanager.js';
 
-
+class InitGame extends Phaser.Scene {
+    constructor ()
+    {
+        super({ key: 'InitGame' });
+    }
+    create () {
+        const storedIndex = localStorage.getItem('selectedPadRetroRush');
+        gamepadToUse = storedIndex !== null ? parseInt(storedIndex, 10) : 0;
+        //if (storedIndex!==null) {
+        //    gamepadToUse=parseInt(storedIndex.valueOf);
+        //}
+        if (isElectron()) {
+            this.input.setDefaultCursor('none')
+        }
+        this.scene.start('SplashScreen')
+    }
+}
 
 class Breakout extends Phaser.Scene
 {
@@ -25,7 +41,6 @@ class Breakout extends Phaser.Scene
         this.load.audio('hitbrick', 'assets/8-bit-game-2-186976.mp3'); // von pixaba
         this.load.audio('gameover', 'assets/game-over-arcade-6435.mp3'); // von pixaba
         this.load.audio('gamestart', 'assets/retro-game-jingleaif-14638.mp3'); // von pixaba  
-        this.input.setDefaultCursor('none') 
         highScore=getHighestScore('Breakout');
     }
 
@@ -222,7 +237,9 @@ class GameOver extends Phaser.Scene {
         const textStyle = {
             fontFamily: 'Arial',
             fontSize: `${height * 0.25}px`,  // ca. die Hälfte des Bildschirms
-            color: '#ff0000',
+            color: '#ffffff',               // Textfarbe (Weiß)
+            stroke: '#00008B',
+            strokeThickness: 8,             // Dicke der Outline
             align: 'center'
         };
 
@@ -246,18 +263,18 @@ class GameOver extends Phaser.Scene {
 
     update() {
         if (edgeTrigger(this.mousePressed,this.input.activePointer.isDown)) {
-            this.scene.start('Splashscreen');  // Szene starten           
+            this.scene.start('SplashScreen');  // Szene starten           
         }    
         if (edgeTrigger(this.spacePressed,this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).isDown)) {
-            this.scene.start('Splashscreen');  // Szene starten           
+            this.scene.start('SplashScreen');  // Szene starten           
         }    
         if (this.input.gamepad.total !== 0) {
             // return to launcher - square pressed    
             if (edgeTrigger(this.startPressed,this.input.gamepad.getPad(0).buttons[0].pressed)) {
-                this.scene.start('Splashscreen');
+                this.scene.start('SplashScreen');
             }
             if (edgeTrigger(this.quitPressed,this.input.gamepad.getPad(0).buttons[2].pressed)) {
-                this.scene.start('Splashscreen');
+                this.scene.start('SplashScreen');
             }
         }
     }
@@ -277,13 +294,14 @@ class UIScene extends Phaser.Scene {
         // Zentrieren (damit das "X" nicht abgeschnitten ist)
         this.closeButton.setOrigin(0.5);
         // Klick-Ereignis hinzufügen
-        this.closeButton.on('pointerdown', () => {this.scene.start('QuitGame')}, this); 
+        this.closeButton.on('pointerdown', () => {this.scene.start('QuitGame')}, this);
+        this.input.keyboard.on('keydown-ESC', () => {this.scene.start('QuitGame')}, this);
     }
 }
 
 class SplashScreen extends Phaser.Scene {
     constructor() {
-        super({ key: 'Splashscreen' });
+        super({ key: 'SplashScreen' });
         score = 0;  // globale variable
         this.mousePressed = { value: false };
         this.spacePressed = { value: false };
@@ -348,13 +366,14 @@ let score = 0;
 let highScore = 0;
 let baelle = 3;
 let scoreIncrement=1;
+let gamepadToUse = 0;
 
 const config = {
     type: Phaser.WEBGL,
     width: xsize,
     height: ysize,
     parent: 'Breakout',
-    scene: [ SplashScreen, Breakout, QuitGame, GameOver, UIScene ],
+    scene: [ InitGame, SplashScreen, Breakout, QuitGame, GameOver, UIScene ],
     physics: {
         default: 'arcade'
     },
