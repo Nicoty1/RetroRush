@@ -48,6 +48,9 @@ class Breakout extends Phaser.Scene
     {
         // baelle auf 3 setzen
         baelle = 3;
+        // score setzen
+        score = 0;
+        highScore = getHighestScore('Breakout');
         //  Enable world bounds, but disable the floor
         this.physics.world.setBoundsCollision(true, true, true, false);
 
@@ -316,7 +319,6 @@ class UIScene extends Phaser.Scene {
 class SplashScreen extends Phaser.Scene {
     constructor() {
         super({ key: 'SplashScreen' });
-        score = 0;  // globale variable
         this.mousePressed = { value: false };
         this.spacePressed = { value: false };
         this.startPressed = { value: false };

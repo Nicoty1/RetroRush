@@ -1,6 +1,6 @@
 import { edgeTrigger, isElectron, checkGamepadIndex} from '../helper.js';
 import { loadHighscores,  insertHighscore, isHighscore, getHighestScore } from '../highscoremanager.js';
-
+import { TextStyles } from './styles/textStyles.js';
 //  Direction consts
 const UP = 0;
 const DOWN = 1;
@@ -9,6 +9,7 @@ const RIGHT = 3;
 
 const GRID_X = 50;
 const GRID_Y = 30;
+const GRID_SIZE = 16;
 
 class InitGame extends Phaser.Scene {
     constructor ()
@@ -18,9 +19,6 @@ class InitGame extends Phaser.Scene {
     create () {
         const storedIndex = localStorage.getItem('selectedPadRetroRush');
         gamepadToUse = storedIndex !== null ? parseInt(storedIndex, 10) : 0;
-        //if (storedIndex!==null) {
-        //    gamepadToUse=parseInt(storedIndex.valueOf);
-        //}
         if (isElectron()) {
             this.input.setDefaultCursor('none')
         }
@@ -48,6 +46,9 @@ class MainScene extends Phaser.Scene {
 
     create ()
     {
+        score = 0;  // globale variable
+        highScore = getHighestScore('Snake');
+
         this.background = this.add.image(0, 0, 'grass').setOrigin(0);
 
         // Bildschirmbreite und -höhe ermitteln
@@ -56,16 +57,8 @@ class MainScene extends Phaser.Scene {
         // Hintergrund skalieren
         this.background.setDisplaySize(width, height);
 
-        this.scoreText=this.add.text(20,20,'Score: '+score,{
-            fontSize: '32px',
-            color: '#ffffff',
-            fontStyle: 'bold'
-        });
-        this.highScoreText=this.add.text(230,20,'Highscore: '+highScore,{
-            fontSize: '32px',
-            color: '#ffffff',
-            fontStyle: 'bold'
-        });
+        this.scoreText=this.add.text(20,20,'Score: '+score,TextStyles.score);
+        this.highScoreText=this.add.text(230,20,'Highscore: '+highScore,TextStyles.highscore);
 
         var Food = new Phaser.Class({
 
@@ -78,7 +71,7 @@ class MainScene extends Phaser.Scene {
                 Phaser.GameObjects.Image.call(this, scene)
 
                 this.setTexture('food');
-                this.setPosition(x * 16, y * 16);
+                this.setPosition(x * GRID_SIZE, y * GRID_SIZE);
                 this.setOrigin(0);
 
                 this.total = 0;
@@ -103,7 +96,7 @@ class MainScene extends Phaser.Scene {
 
                 this.body = scene.add.group();
 
-                this.head = this.body.create(x * 16, y * 16, 'head');
+                this.head = this.body.create(x * GRID_SIZE, y * GRID_SIZE, 'head');
                 this.head.setOrigin(0);
 
                 this.alive = true;
@@ -189,7 +182,7 @@ class MainScene extends Phaser.Scene {
                 this.direction = this.heading;
 
                 //  Update the body segments and place the last coordinate into this.tail
-                Phaser.Actions.ShiftPosition(this.body.getChildren(), this.headPosition.x * 16, this.headPosition.y * 16, 1, this.tail);
+                Phaser.Actions.ShiftPosition(this.body.getChildren(), this.headPosition.x * GRID_SIZE, this.headPosition.y * GRID_SIZE, 1, this.tail);
 
                 //  Check to see if any of the body pieces have the same x/y as the head
                 //  If they do, the head ran into the body
@@ -247,8 +240,8 @@ class MainScene extends Phaser.Scene {
                 //  Remove all body pieces from valid positions list
                 this.body.children.each(function (segment) {
 
-                    var bx = segment.x / 16;
-                    var by = segment.y / 16;
+                    var bx = segment.x / GRID_SIZE;
+                    var by = segment.y / GRID_SIZE;
 
                     grid[by][bx] = false;
 
@@ -278,8 +271,11 @@ class MainScene extends Phaser.Scene {
     */
     repositionFood ()
     {
-
-        this.scene.start('GameOver');
+        score += 10;
+        this.scoreText.setText('Score: '+score);
+        if (score >30) {
+            this.scene.start('GameOver');
+        }
 
 
         //  First create an array that assumes all positions
@@ -321,7 +317,7 @@ class MainScene extends Phaser.Scene {
             var pos = Phaser.Math.RND.pick(validLocations);
 
             //  And place it
-            this.food.setPosition(pos.x * 16, pos.y * 16);
+            this.food.setPosition(pos.x * GRID_SIZE, pos.y * GRID_SIZE);
 
             return true;
         }
@@ -450,31 +446,10 @@ class GameOver extends Phaser.Scene {
         // Hintergrund skalieren
         this.background.setDisplaySize(width, height);
 
-        this.add.text(
-            this.scale.width / 2,                  // X-Koordinate (zentriert)
-            this.scale.height - 20,                // Y-Koordinate (20px vom unteren Rand)
-            'Drücke <Start> oder die Maustaste um fortzufahren',                      // Beliebiger Text
-            {
-                fontSize: '18px',               // Schriftgröße
-                fontFamily: 'Arial',            // Schriftart
-                color: '#ffffff',               // Textfarbe (Weiß)
-                stroke: '#006400',              // Outline-Farbe (Dunkelgrün)
-                strokeThickness: 5,             // Dicke der Outline
-                align: 'center'                 // Zentrierte Ausrichtung
-            }
-        ).setOrigin(0.5, 1);                       // Ursprung: Mitte unten
-        // Textstil definieren
-        const textStyle = {
-            fontFamily: 'Arial',
-            fontSize: `${height * 0.25}px`,  // ca. die Hälfte des Bildschirms
-            color: '#ffffff',               // Textfarbe (Weiß)
-            stroke: '#006400',
-            strokeThickness: 8,             // Dicke der Outline
-            align: 'center'
-        };
+        this.add.text(this.scale.width / 2,this.scale.height - 20,'Drücke <Start> oder die Maustaste um fortzufahren',  TextStyles.pressakey,).setOrigin(0.5, 1);                       // Ursprung: Mitte unten
         // Game Over Text erstellen
-        this.add.text(width / 2, height / 2 - (height * 0.125), 'GAME', textStyle).setOrigin(0.5);
-        this.add.text(width / 2, height / 2 + (height * 0.125), 'OVER', textStyle).setOrigin(0.5);
+        this.add.text(width / 2, height / 2 - (height * 0.125), 'GAME', TextStyles.gameover(height)).setOrigin(0.5);
+        this.add.text(width / 2, height / 2 + (height * 0.125), 'OVER', TextStyles.gameover(height)).setOrigin(0.5);
 
         if (isHighscore('Snake',score)) {
             insertHighscore('Snake', 'SON', score);
@@ -507,11 +482,7 @@ class UIScene extends Phaser.Scene {
         super({ key: 'UIScene', active: true }); // Immer aktiv
     }
     create () {
-        this.closeButton = this.add.text(this.scale.width - 30, 30, 'X', {
-            fontSize: '32px',
-            color: '#ffffff',
-            fontStyle: 'bold'
-        }).setInteractive();
+        this.closeButton = this.add.text(this.scale.width - 30, 30, 'X', TextStyles.closebutton).setInteractive();
         // Zentrieren (damit das "X" nicht abgeschnitten ist)
         this.closeButton.setOrigin(0.5);
         // Klick-Ereignis hinzufügen
@@ -523,7 +494,6 @@ class UIScene extends Phaser.Scene {
 class SplashScreen extends Phaser.Scene {
     constructor() {
         super({ key: 'SplashScreen' });
-        score = 0;  // globale variable
         this.mousePressed = { value: false };
         this.spacePressed = { value: false };
         this.startPressed = { value: false };
@@ -544,16 +514,7 @@ class SplashScreen extends Phaser.Scene {
         this.add.text(
             this.scale.width / 2,                  // X-Koordinate (zentriert)
             this.scale.height - 20,                // Y-Koordinate (20px vom unteren Rand)
-            'Drücke <Start> oder die Maustaste um fortzufahren',                      // Beliebiger Text
-            {
-                fontSize: '18px',               // Schriftgröße
-                fontFamily: 'Arial',            // Schriftart
-                color: '#ffffff',               // Textfarbe (Weiß)
-                stroke: '#006400',              // Outline-Farbe (Dunkelgrün)
-                strokeThickness: 5,             // Dicke der Outline
-                align: 'center'                 // Zentrierte Ausrichtung
-            }
-        ).setOrigin(0.5, 1);                       // Ursprung: Mitte unten
+            'Drücke <Start> oder die Maustaste um fortzufahren',TextStyles.pressakey).setOrigin(0.5, 1);                       // Ursprung: Mitte unten
     }
 
     update () {
