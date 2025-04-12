@@ -1,0 +1,41 @@
+html, body {
+    user-select: none;
+  }
+  
+  /* Embla Container: 75% der Viewport-Breite + zentriert */
+  .embla {
+    width: 75vw;
+    margin: 0 auto;
+    overflow: hidden;
+  }
+  
+  .embla__container {
+    display: flex;
+    gap: 20px; /* Abstand zwischen Slides */
+  }
+  
+  .embla__slide {
+    flex: 0 0 30%;
+    height: 30vwpx;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  
+  .embla__slide img {
+    max-height: 100%;
+    max-width: 100%;
+    object-fit: contain;
+    width: auto;
+    height: auto;
+    display: block;
+    border-radius: 15px;
+  }
+
+  .embla__slide.is-selected {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    z-index: 1;
+  }
+  
