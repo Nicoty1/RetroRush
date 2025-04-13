@@ -7,13 +7,6 @@
   <link rel="stylesheet" type="text/css" href="css/embla.css">
   <link rel="stylesheet" type="text/css" href="css/styles.css">
   <script src="js/phaser.min.js"></script>
-  <style>
-    .embla__slide:nth-child(1) { background: #2c3e50; }
-    .embla__slide:nth-child(2) { background: #8e44ad; }
-    .embla__slide:nth-child(3) { background: #27ae60; }
-    .embla__slide:nth-child(4) { background: #d35400; }
-    .embla__slide:nth-child(5) { background: #c0392b; }
-  </style>
 </head>
 <body>
   <h1>RetroRush Spiele Launcher</h1>
@@ -21,32 +14,29 @@
 
       <div class="embla__container">
         <div class="embla__slide" data-game="Breakout/index.html">
-          <img src="Breakout/assets/splashscreen.png" alt="Breakout">
+          <img src="Breakout/assets/splashscreen.png" alt="Breakout aufrufen">
         </div>
         <div class="embla__slide" data-game="Snake/index.html">
-          <img src="Snake/assets/splashscreen.jpg" alt="Snake">
+          <img src="Snake/assets/splashscreen.jpg" alt="Snake aufrufen">
         </div>
         <div class="embla__slide" data-game="Gamepad/index.html">
-          <h3>Gamepad</h3>
+          <img src="img/gamepad.png" alt="Gamepad Konfiguration">
         </div>
-        <div class="embla__slide" data-game="https://www.tgm.ac.at/">
-          <h3>tgm</h3>
-        </div>
-        <div class="embla__slide" data-game="Gamepad/index.html">
-          <h3>clear high scores</h3>
+        <div class="embla__slide" data-game="./index.html">
+          <img src="img/settings.png" alt="Einstellungen">
         </div>
         <div class="embla__slide electron-only" data-ipc="app-exit">
-          <h3>Beenden</h3>
+          <img src="img/beenden.png" alt="Launcher beenden">
         </div>
         <div class="embla__slide electron-only" data-ipc="app-shutdown">
-          <h3>Shutdown</h3>
+          <img src="img/shutdown.png" alt="Shutdown Raspberry Pi">
         </div>
       </div>
 
   </div>
   <h1>Hier kann man auch noch was hinschreiben.</h1>
 
-  <script src="./js/embla-carousel.umd.js"></script>
+  <script src="./js/embla-carousel.umd.copy.js"></script>
   <script>
     // Entferne alle electron spezfischen Slides, wenn nicht in Electron
     if (!(typeof process !== 'undefined' && process.versions && process.versions.electron)) {
@@ -60,7 +50,7 @@
     const emblaNode = document.querySelector('.embla');
     const embla = EmblaCarousel(emblaNode, {
       align: 'center',               // linksbündig statt zentriert
-      containScroll: false,   // verhindert unendliches Scrollen über das letzte Slide hinaus
+      containScroll: false,       // verhindert unendliches Scrollen über das letzte Slide hinaus
       loop: true                   // kein Loop (empfohlen bei wenigen Slides)
     });
     window.embla = embla;
@@ -70,6 +60,7 @@
       slides.forEach(slide => slide.classList.remove('is-selected'));
       const selectedIndex = embla.selectedScrollSnap();
       slides[selectedIndex].classList.add('is-selected');
+      console.log('Selected index-->:', selectedIndex);
     }
 
     embla.on('select', updateSelected);
@@ -89,9 +80,19 @@
       type: Phaser.AUTO,
       width: 1,
       height: 1,
+      input: {
+        gamepad: true
+      },
       scene: {
         create: function () {
           console.log('Phaser game created');
+          // Gamepad aktivieren
+          //this.input.gamepad.once('connected', (pad) => {
+         //   console.log('Gamepad connected:', pad);
+          //});
+          // hole das aktuelle Gamepad
+          const storedIndex = localStorage.getItem('selectedPadRetroRush');
+          gamepadToUse = storedIndex !== null ? parseInt(storedIndex, 10) : 0;
           const cursors = this.input.keyboard.createCursorKeys();
           this.input.keyboard.on('keydown-LEFT', () => {
             console.log('Left key pressed');
@@ -103,20 +104,52 @@
             console.log(window.embla?.selectedScrollSnap());
             window.embla?.scrollNext();
           });
-          this.input.keyboard.on('keydown-ENTER', () => {
-
+          this.input.keyboard.on('keydown-SPACE', () => {
             const selectedIndex = window.embla?.selectedScrollSnap();
             const slides = document.querySelectorAll('.embla__slide');
             console.log(selectedIndex);
             const url = slides[selectedIndex]?.getAttribute('data-game');
-            const ipc = slides[selectedIndex]?.getAttribute('data-ipc');
+            const ipc = slides[selectedIndex]?.getAttribute('data-ipc');  
             if (url) window.location.href = url;
             if (ipc) sendIpc(ipc);
           });
+        },
+        update: function () {
+          if (this.input.gamepad.total !== 0) {
+            let pad;
+            pad = this.input.gamepad.getPad(gamepadToUse);
+            if (pad.left || pad.right || pad.A) {
+              if (!gamePadPressed) {
+                gamePadPressed = true;
+                if (pad.left)
+                {
+                  window.embla?.scrollPrev();
+                }
+                else if (pad.right)
+                {
+                  window.embla?.scrollNext();
+                }
+                else if (pad.A) {
+                    console.log("Select pressed")
+                    const selectedIndex = window.embla?.selectedScrollSnap();
+                    const slides = document.querySelectorAll('.embla__slide');
+                    console.log(selectedIndex);
+                    const url = slides[selectedIndex]?.getAttribute('data-game');
+                    const ipc = slides[selectedIndex]?.getAttribute('data-ipc');
+                    if (url) window.location.href = url;
+                    if (ipc) sendIpc(ipc);  
+                }
+              }
+            }
+            else {
+              gamePadPressed = false;
+            }
+          }
         }
       }
     };
-
+    let gamepadToUse = 0;
+    let gamePadPressed = false;
     new Phaser.Game(config);
   </script>
 

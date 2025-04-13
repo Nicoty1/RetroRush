@@ -1,4 +1,5 @@
 html, body {
+
     user-select: none;
   }
   
@@ -15,8 +16,8 @@ html, body {
   }
   
   .embla__slide {
-    flex: 0 0 30%;
-    height: 30vwpx;
+    flex: 0 0 28%;
+    height: 15vw;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -34,8 +35,7 @@ html, body {
   }
 
   .embla__slide.is-selected {
-    transform: scale(1.1);
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-    z-index: 1;
+    filter: brightness(1.2);
+    /* border: 2px solid black; */
   }
   

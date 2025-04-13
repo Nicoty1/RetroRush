@@ -11,9 +11,6 @@ class InitGame extends Phaser.Scene {
     create () {
         const storedIndex = localStorage.getItem('selectedPadRetroRush');
         gamepadToUse = storedIndex !== null ? parseInt(storedIndex, 10) : 0;
-        //if (storedIndex!==null) {
-        //    gamepadToUse=parseInt(storedIndex.valueOf);
-        //}
         if (isElectron()) {
             this.input.setDefaultCursor('none')
         }
@@ -190,7 +187,7 @@ class Breakout extends Phaser.Scene
             this.resetBall();
         }
         if (this.input.gamepad.total !== 0) {
-            const pad = this.input.gamepad.getPad(0);
+            const pad = this.input.gamepad.getPad(gamepadToUse);
             if (pad.left) {
                 console.log("isleft")
             }
@@ -287,10 +284,10 @@ class GameOver extends Phaser.Scene {
         }    
         if (this.input.gamepad.total !== 0) {
             // return to launcher - square pressed    
-            if (edgeTrigger(this.startPressed,this.input.gamepad.getPad(0).buttons[0].pressed)) {
+            if (edgeTrigger(this.startPressed,this.input.gamepad.getPad(gamepadToUse).buttons[0].pressed)) {
                 this.scene.start('SplashScreen');
             }
-            if (edgeTrigger(this.quitPressed,this.input.gamepad.getPad(0).buttons[2].pressed)) {
+            if (edgeTrigger(this.quitPressed,this.input.gamepad.getPad(gamepadToUse).buttons[2].pressed)) {
                 this.scene.start('SplashScreen');
             }
         }
@@ -364,10 +361,10 @@ class SplashScreen extends Phaser.Scene {
         }    
         if (this.input.gamepad.total !== 0) {
             // return to launcher - square pressed    
-            if (edgeTrigger(this.startPressed,this.input.gamepad.getPad(0).buttons[0].pressed)) {
+            if (edgeTrigger(this.startPressed,this.input.gamepad.getPad(gamepadToUse).buttons[0].pressed)) {
                 this.scene.start('Breakout');
             }
-            if (edgeTrigger(this.quitPressed,this.input.gamepad.getPad(0).buttons[2].pressed)) {
+            if (edgeTrigger(this.quitPressed,this.input.gamepad.getPad(gamepadToUse).buttons[2].pressed)) {
                 this.scene.start('QuitGame');
             }
         }
