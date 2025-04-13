@@ -1,7 +1,45 @@
+
   html, body {
     user-select: none;
   }
-  
+
+  @font-face {
+    font-family: 'Peralta';
+    src: url('../fonts/Peralta-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'PressStart2P';
+    src: url('../fonts/PressStart2P-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'Swanky';
+    src: url('../fonts/FontdinerSwanky.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  .font-peralta {
+    font-family: 'Peralta', sans-serif;
+  }
+
+  .font-pressstart {
+    font-family: 'PressStart2P', sans-serif;
+  }
+
+  .font-swanky {
+    font-family: 'Swanky', sans-serif;
+  }
+
+  .zentriert {
+    text-align: center;
+  }
+
   /* Embla Container: 75% der Viewport-Breite + zentriert */
   .embla {
     width: 75vw;
@@ -46,7 +84,8 @@
 
   .embla__slide.is-selected {
     /*filter: brightness(1.2); */
-    border: 0px solid black;
+    border: 6px solid rgb(3, 249, 241);
+    border-radius: 20px;
   }
 
   .embla__slide:first-of-type {
@@ -55,5 +94,12 @@
   
   .embla__slide.is-clone:first-of-type {
     margin-left: 20px;
+  } 
+
+  .background {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to bottom, #56d2e0, #0180ba);
   }
-  
+
