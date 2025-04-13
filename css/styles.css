@@ -1,5 +1,4 @@
-html, body {
-
+  html, body {
     user-select: none;
   }
   
@@ -13,15 +12,26 @@ html, body {
   .embla__container {
     display: flex;
     gap: 20px; /* Abstand zwischen Slides */
+
   }
   
   .embla__slide {
-    flex: 0 0 28%;
-    height: 15vw;
+    flex: 0 0 40%;
+    height: 20vw;
     display: flex;
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    text-align: center;
+    padding: 0;
+  }
+
+  .embla__img-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
   }
   
   .embla__slide img {
@@ -35,7 +45,15 @@ html, body {
   }
 
   .embla__slide.is-selected {
-    filter: brightness(1.2);
-    /* border: 2px solid black; */
+    /*filter: brightness(1.2); */
+    border: 0px solid black;
+  }
+
+  .embla__slide:first-of-type {
+    margin-left: 20px;
+  }
+  
+  .embla__slide.is-clone:first-of-type {
+    margin-left: 20px;
   }
   
