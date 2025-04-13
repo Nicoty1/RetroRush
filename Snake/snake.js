@@ -526,10 +526,10 @@ class SplashScreen extends Phaser.Scene {
         }    
         if (this.input.gamepad.total !== 0) {
             gamepadToUse=checkGamepadIndex(gamepadToUse,this.input.gamepad.total);
-            if (edgeTrigger(this.startPressed,this.input.gamepad.getPad(gamepadToUse).buttons[0].pressed)) {
+            if (edgeTrigger(this.startPressed,this.input.gamepad.getPad(gamepadToUse).A)) {
                 this.scene.start('MainScene');
             }
-            if (edgeTrigger(this.quitPressed,this.input.gamepad.getPad(gamepadToUse).buttons[2].pressed)) {
+            if (edgeTrigger(this.quitPressed,this.input.gamepad.getPad(gamepadToUse).X)) {
                 this.scene.start('QuitGame');
             }
         }

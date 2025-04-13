@@ -1,24 +1,24 @@
 {
-  "Breakout": [
+  "Snake": [
     {
       "name": "SON",
-      "score": 45
+      "score": 40
     },
     {
       "name": "SON",
-      "score": 45
+      "score": 20
     },
     {
       "name": "SON",
-      "score": 39
+      "score": 20
     },
     {
       "name": "SON",
-      "score": 38
+      "score": 20
     },
     {
-      "name": "SON",
-      "score": 36
+      "name": "---",
+      "score": 0
     }
   ]
 }

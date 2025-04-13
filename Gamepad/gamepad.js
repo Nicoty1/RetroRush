@@ -67,6 +67,12 @@ class MainScene extends Phaser.Scene
         this.closeButton.setOrigin(0.5);
         // Klick-Ereignis hinzufügen
         this.closeButton.on('pointerdown', () => {this.scene.start('GameOver')}, this);
+        this.input.keyboard.on('keydown-ESC', () => {this.scene.start('GameOver')}, this);
+        this.input.on('pointerdown', (pointer) => {
+            if (pointer.rightButtonDown()) {              
+                this.scene.start('GameOver');
+            }
+        });
         console.log(`Verwendeter Gamepad-Index: ${gamepadToUse}`);
     }
 
@@ -140,9 +146,45 @@ class MainScene extends Phaser.Scene
                         axes = '';
                     }
                 }
-                
                 debug.push(axes);
                 debug.push('');
+            }
+            let gamepad = pads[gamepadToUse];
+            if (gamepad.left) {
+                debug.push('<link> gedrückt');
+            }
+            else {
+                debug.push('<link> nicht gedrückt');
+            }
+            if (gamepad.right) {
+                debug.push('<right> gedrückt');
+            }
+            else {
+                debug.push('<right> nicht gedrückt');
+            }
+            if (gamepad.up) {
+                debug.push('<up> gedrückt');
+            }
+            else {
+                debug.push('<up> nicht gedrückt');
+            }
+            if (gamepad.down) {
+                debug.push('<down> gedrückt');
+            }
+            else {
+                debug.push('<down> nicht gedrückt');
+            }
+            if (gamepad.A) {
+                debug.push('<Start> gedrückt');
+            }
+            else {
+                debug.push('<Start> nicht gedrückt');
+            }
+            if (gamepad.X) {
+                debug.push('<Exit> gedrückt');
+            }
+            else {
+                debug.push('<Exit> nicht gedrückt');
             }
         }
         //this.text.setVisible(false);

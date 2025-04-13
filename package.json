@@ -12,5 +12,8 @@
   "license": "ISC",
   "devDependencies": {
     "electron": "^35.0.0"
+  },
+  "dependencies": {
+    "embla-carousel": "^8.6.0"
   }
 }
