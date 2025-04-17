@@ -8,11 +8,12 @@
   <script src="js/phaser.min.js"></script>
 </head>
 <body>
-  <h1 class="zentriert font-swanky">LED-Pal by RetroRush V1</h1>
+  <h1 class="zentriert font-swanky" onclick="location.reload()">LED-Pal by RetroRush V1</h1>
   <div class="embla">
       <div class="embla__container">
         <div class="embla__slide" data-game="Breakout/index.html">
           <img src="Breakout/assets/splashscreen.png" alt="Breakout aufrufen">
+          <div class="slide-caption">Das ist Slide 1</div>
         </div>
         <div class="embla__slide" data-game="Snake/index.html">
           <img src="Snake/assets/splashscreen.jpg" alt="Snake aufrufen">
@@ -32,15 +33,39 @@
       </div>
 
   </div>
+  <h2>IP-Adresse von LED-Pal: <span id="iptext"> </span></h2>
   <h3 class="font-pressstart">Hier kann man auch noch was hinschreiben.</h1>
   <h3 class="font-peralta">Idee, Konzept und Realisation: Glaser Noah, Sonnleithner Nico und n.n.</h3>
 
   <script src="./js/embla-carousel.umd.copy.js"></script>
   <script>
     // Entferne alle electron spezfischen Slides, wenn nicht in Electron
-    if (!(typeof process !== 'undefined' && process.versions && process.versions.electron)) {
+    if (!isElectron()) {	
       document.querySelectorAll('.embla__container .electron-only').forEach(el => el.remove());
     }
+    // Überprüfe, ob die App in Electron läuft
+    function isElectron() {
+      return (typeof process !== 'undefined' && process.versions && process.versions.electron);
+    }
+
+    function getLocalIP() {
+      if (isElectron()) {
+        const os = require("os");
+        const interfaces = os.networkInterfaces();
+        for (let iface in interfaces) {
+          for (let i of interfaces[iface]) {
+            if (i.family === "IPv4" && !i.internal) {
+              return i.address;
+            }
+          }
+        }
+        return "<nicht gefunden>";
+      }
+      return "<im Browser nicht verfügbar>";
+    }
+    document.getElementById("iptext").innerText = getLocalIP();
+
+
     // Sende ipc Command to calling process
     function sendIpc(cmd) {
       const { ipcRenderer } = require('electron');
@@ -151,11 +176,5 @@
     let gamePadPressed = false;
     new Phaser.Game(config);
   </script>
-
-
-
-
-
-
 </body>
 </html>
