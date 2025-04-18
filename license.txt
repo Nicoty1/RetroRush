@@ -1,0 +1,11 @@
+# License
+
+This project uses [Phaser](https://phaser.io), which is licensed under the [MIT License](https://opensource.org/licenses/MIT).
+Phaser © 2013–2025 Photon Storm Ltd.
+
+Dieses Projekt verwendet [Electron](https://www.electronjs.org), das unter der [MIT License](https://opensource.org/licenses/MIT) steht.  
+© 2013–2025 GitHub, Inc. © Electron contributors
+
+
+
+
