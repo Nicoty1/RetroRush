@@ -116,3 +116,10 @@
     background: linear-gradient(to bottom, #56d2e0, #0180ba);
   }
 
+  .caption-display {
+    text-align: center;
+    margin-top: 0.5rem;
+    font-size: 3.5vw;
+    font-weight: bold;
+  }
+

@@ -19,25 +19,30 @@
       <div class="embla__container">
         <div class="embla__slide" data-game="Breakout/index.html">
           <img src="Breakout/assets/splashscreen.png" alt="Breakout aufrufen">
-          <div class="slide-caption">Das ist Slide 1</div>
+          <div class="slide-caption">Breakout</div>
         </div>
         <div class="embla__slide" data-game="Snake/index.html">
           <img src="Snake/assets/splashscreen.jpg" alt="Snake aufrufen">
+          <div class="slide-caption">Snake</div>
         </div>
         <div class="embla__slide" data-game="Gamepad/index.html">
           <img src="img/gamepad.png" alt="Gamepad Konfiguration">
+          <div class="slide-caption">Gamepad konfigurieren</div>
         </div>
         <div class="embla__slide" data-game="./index.html">
           <img src="img/settings.png" alt="Einstellungen">
+          <div class="slide-caption">Einstellungen</div>
         </div>
         <div class="embla__slide electron-only" data-ipc="app-exit">
           <img src="img/beenden.png" alt="Launcher beenden">
+          <div class="slide-caption">ins Betriebssystem</div>
         </div>
         <div class="embla__slide electron-only" data-ipc="app-shutdown">
           <img src="img/shutdown.png" alt="Shutdown Raspberry Pi">
+          <div class="slide-caption">Abschalten</div>
         </div>
       </div>
-
+      <div id="embla-caption" class="caption-display"></div>
   </div>
   <h2>IP-Adresse von LED-Pal: <span id="iptext"> </span></h2>
   <h3 class="font-pressstart">Hier kann man auch noch was hinschreiben.</h1>
@@ -86,10 +91,17 @@
     window.embla = embla;
     const slides = document.querySelectorAll('.embla__slide');
 
+    const captionDisplay = document.getElementById('embla-caption');
+
     function updateSelected() {
       slides.forEach(slide => slide.classList.remove('is-selected'));
       const selectedIndex = embla.selectedScrollSnap();
       slides[selectedIndex].classList.add('is-selected');
+      const selectedSlide = embla.slideNodes()[selectedIndex]; // DOM-Node
+      const caption = selectedSlide.querySelector('.slide-caption')?.textContent || '';
+      captionDisplay.textContent = caption;
+      console.log('Selected caption-->:', caption);
+
       console.log('Selected index-->:', selectedIndex);
     }
 
