@@ -95,7 +95,8 @@ class Breakout extends Phaser.Scene
                 this.scene.start('QuitGame');
             }
             else {      // Ball vom Paddle starten
-                startBall();
+                console.log('startBall');
+                this.startBall();
                 /*
                 if (this.ball.getData('onPaddle')) {
                     this.ball.setVelocity(-75, -300);
