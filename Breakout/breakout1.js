@@ -1,7 +1,7 @@
 
 import { edgeTrigger, isElectron} from '../helper.js';
-
 import { loadHighscores, insertHighscore, isHighscore, getHighestScore } from '../highscoremanager.js';
+import { TextStyles } from './styles/textStyles.js';
 
 class InitGame extends Phaser.Scene {
     constructor ()
@@ -105,6 +105,10 @@ class Breakout extends Phaser.Scene
             }
         }, this);
 
+        //  Create our keyboard controls
+        this.cursors = this.input.keyboard.createCursorKeys();
+        this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
         // sound
         //this.music = this.sound.add('theme');
         this.soundhitpaddle = this.sound.add('hitpaddle');
@@ -112,21 +116,9 @@ class Breakout extends Phaser.Scene
         this.gameover = this.sound.add('gameover');
         this.gamestart = this.sound.add('gamestart');
 
-        this.scoreText=this.add.text(20,20,'Score: '+score,{
-            fontSize: '32px',
-            color: '#ffffff',
-            fontStyle: 'bold'
-        });
-        this.highScoreText=this.add.text(230,20,'Highscore: '+highScore,{
-            fontSize: '32px',
-            color: '#ffffff',
-            fontStyle: 'bold'
-        });
-        this.baelleText=this.add.text(550,20,'Bälle: '+baelle,{
-            fontSize: '32px',
-            color: '#ffffff',
-            fontStyle: 'bold'
-        });
+        this.scoreText=this.add.text(20,20,'Score: '+score,TextStyles.score);
+        this.highScoreText=this.add.text(230,20,'Highscore: '+highScore,TextStyles.highscore);
+        this.baelleText=this.add.text(550,20,'Bälle: '+baelle,TextStyles.baelle);
         this.gamestart.play();
     }
 
@@ -205,13 +197,24 @@ class Breakout extends Phaser.Scene
             this.resetBall();
         }
         let x = this.paddle.x
+        // check cursor keys
+        if (this.cursors.left.isDown) {
+            x -= 20               ;    
+        }
+        if (this.cursors.right.isDown) {
+            x += 20;    
+        }
+        if (this.spaceKey.isDown) {
+            this.startBall();
+        }
+        // Check gamepad
         if (this.input.gamepad.total !== 0) {
             const pad = this.input.gamepad.getPad(gamepadToUse);
             if (pad.left) {
-                x -= 20;    
+                x -= 30;    
             }
             if (pad.right) {
-                x += 20;
+                x += 30;
             }
             if (pad.X) {
                 console.log("Square pressed")
@@ -277,28 +280,12 @@ class GameOver extends Phaser.Scene {
         // const { width, height } = this.scale;
 
         // Textstil definieren
-        const textStyle = {
-            fontFamily: 'Arial',
-            fontSize: `${height * 0.25}px`,  // ca. die Hälfte des Bildschirms
-            color: '#ffffff',               // Textfarbe (Weiß)
-            stroke: '#00008B',
-            strokeThickness: 8,             // Dicke der Outline
-            align: 'center'
-        };
-
+        this.add.text(this.scale.width / 2,this.scale.height - 20,'Drücke <Start> oder die Maustaste um fortzufahren',  TextStyles.pressakey,).setOrigin(0.5, 1);                       // Ursprung: Mitte unten
         // Game Over Text erstellen
-        this.add.text(width / 2, height / 2 - (height * 0.125), 'GAME', textStyle).setOrigin(0.5);
-        this.add.text(width / 2, height / 2 + (height * 0.125), 'OVER', textStyle).setOrigin(0.5);
-        this.add.text(
-            this.scale.width / 2,                  // X-Koordinate (zentriert)
-            this.scale.height - 20,                // Y-Koordinate (20px vom unteren Rand)
-            'Drücke <Start> oder die Maustaste um fortzufahren',                      // Beliebiger Text
-            {
-                fontSize: '18px',                   // Schriftgröße
-                color: '#ffffff',                  // Dunkelblau (Hex-Farbe)
-                align: 'center'                    // Zentrierte Ausrichtung
-            }
-        ).setOrigin(0.5, 1);                       // Ursprung: Mitte unten
+        this.add.text(width / 2, height / 2 - (height * 0.125), 'GAME', TextStyles.gameover(height)).setOrigin(0.5);
+        this.add.text(width / 2, height / 2 + (height * 0.125), 'OVER', TextStyles.gameover(height)).setOrigin(0.5);
+        // Keyboard Space Key adden
+        this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         if (isHighscore('Breakout',score)) {
             insertHighscore('Breakout', 'SON', score);
         }
@@ -308,9 +295,16 @@ class GameOver extends Phaser.Scene {
         if (edgeTrigger(this.mousePressed,this.input.activePointer.isDown)) {
             this.scene.start('SplashScreen');  // Szene starten           
         }    
+
+/*
         if (edgeTrigger(this.spacePressed,this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).isDown)) {
             this.scene.start('SplashScreen');  // Szene starten           
-        }    
+        }
+*/
+        if (edgeTrigger(this.spacePressed, this.spaceKey.isDown)) {
+            this.scene.start('SplashScreen');
+        }
+        
         if (this.input.gamepad.total !== 0) {
             // return to launcher - square pressed    
             if (edgeTrigger(this.startPressed,this.input.gamepad.getPad(gamepadToUse).buttons[0].pressed)) {
@@ -329,11 +323,7 @@ class UIScene extends Phaser.Scene {
         super({ key: 'UIScene', active: true }); // Immer aktiv
     }
     create () {
-        this.closeButton = this.add.text(this.scale.width - 30, 30, 'X', {
-            fontSize: '32px',
-            color: '#ffffff',
-            fontStyle: 'bold'
-        }).setInteractive();
+        this.closeButton = this.add.text(this.scale.width - 30, 30, 'X', TextStyles.closebutton).setInteractive();
         // Zentrieren (damit das "X" nicht abgeschnitten ist)
         this.closeButton.setOrigin(0.5);
         // Klick-Ereignis hinzufügen
@@ -365,17 +355,9 @@ class SplashScreen extends Phaser.Scene {
         // Hintergrund skalieren
         this.background.setDisplaySize(width, height);
 
-        this.add.text(
-            this.scale.width / 2,                  // X-Koordinate (zentriert)
-            this.scale.height - 20,                // Y-Koordinate (20px vom unteren Rand)
-            'Drücke <Start> oder die Maustaste um fortzufahren',                      // Beliebiger Text
-            {
-                fontSize: '18px',                   // Schriftgröße
-                color: '#ffffff',                  // Dunkelblau (Hex-Farbe)
-                align: 'center'                    // Zentrierte Ausrichtung
-            }
-        ).setOrigin(0.5, 1);                       // Ursprung: Mitte unten
-
+        this.add.text(this.scale.width / 2, this.scale.height - 20, 'Drücke <Start> oder die Maustaste um fortzufahren',TextStyles.pressakey).setOrigin(0.5, 1);
+        // Keyboard Space Key adden
+        this.spaceKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
         // Spielende nach 5 Sekunden
         // this.time.delayedCall(5000, () => {this.scene.start('Breakout')});
 
@@ -384,10 +366,15 @@ class SplashScreen extends Phaser.Scene {
     update () {
         if (edgeTrigger(this.mousePressed,this.input.activePointer.isDown)) {
             this.scene.start('Breakout');  // Szene starten           
-        }    
+        }
+        /*    
         if (edgeTrigger(this.spacePressed,this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE).isDown)) {
             this.scene.start('Breakout');  // Szene starten           
-        }    
+        }
+        */  
+        if (edgeTrigger(this.spacePressed, this.spaceKey.isDown)) {
+            this.scene.start('Breakout');
+        }
         if (this.input.gamepad.total !== 0) {
             // return to launcher - square pressed    
             if (edgeTrigger(this.startPressed,this.input.gamepad.getPad(gamepadToUse).buttons[0].pressed)) {
