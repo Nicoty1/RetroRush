@@ -48,6 +48,19 @@ class Breakout extends Phaser.Scene
         // score setzen
         score = 0;
         highScore = getHighestScore('Breakout');
+
+        //  Input events - auf komplettes Browserfenster, damit es z.B. auf einem iPhone noch spielbar bleibt
+        //  Darauf wird weiter unten ein Event Handler gesetzt und beim verlassen der Scene wieder gelöscht
+        //  Paddle auf Position der Maus setzen
+        this._onPointerMove = (event) => {
+            const x = event.clientX;
+            this.paddle.x = Phaser.Math.Clamp(x, 52, xsize - 52);
+            //console.log('Paddle:', this.paddle.x);
+            if (this.ball.getData('onPaddle')) {
+                this.ball.x = this.paddle.x;
+            }
+        };
+    
         //  Enable world bounds, but disable the floor
         this.physics.world.setBoundsCollision(true, true, true, false);
 
@@ -67,19 +80,13 @@ class Breakout extends Phaser.Scene
         this.physics.add.collider(this.ball, this.bricks, this.hitBrick, null, this);
         this.physics.add.collider(this.ball, this.paddle, this.hitPaddle, null, this);
 
-        //  Input events
-        this.input.on('pointermove', function (pointer)
-        {
-
-            //  Keep the paddle within the game
-            this.paddle.x = Phaser.Math.Clamp(pointer.x, 52, 748);
-
-            if (this.ball.getData('onPaddle'))
-            {
-                this.ball.x = this.paddle.x;
-            }
-
-        }, this);
+        //  Input events - auf komplettes Browserfenster, damit es z.B. auf einem iPhone noch spielbar bleibt
+        window.addEventListener('pointermove', this._onPointerMove);
+        //  Shutdown setzen, damit der Event Handler pointermove beim Verlassen wieder entfernt wird. 
+        this.events.once('shutdown', () => {
+            console.log('Scene shutdown() wurde ausgelöst!');
+            window.removeEventListener('pointermove', this._onPointerMove);
+        });
 
         this.input.on('pointerup', function (pointer)
         {
@@ -87,13 +94,17 @@ class Breakout extends Phaser.Scene
                 console.log('Rechte Maustaste gedrückt');
                 this.scene.start('QuitGame');
             }
-            else {
+            else {      // Ball vom Paddle starten
+                console.log('startBall');
+                this.startBall();
+                /*
                 if (this.ball.getData('onPaddle')) {
                     this.ball.setVelocity(-75, -300);
                     this.ball.setData('onPaddle', false);
-                }
+                }*/
             }
         }, this);
+
         // sound
         //this.music = this.sound.add('theme');
         this.soundhitpaddle = this.sound.add('hitpaddle');
@@ -117,6 +128,13 @@ class Breakout extends Phaser.Scene
             fontStyle: 'bold'
         });
         this.gamestart.play();
+    }
+
+    startBall() {
+        if (this.ball.getData('onPaddle')) {
+            this.ball.setVelocity(-75, -300);
+            this.ball.setData('onPaddle', false);
+        }
     }
 
     hitBrick (ball, brick)
@@ -186,19 +204,30 @@ class Breakout extends Phaser.Scene
             this.gameover.play();
             this.resetBall();
         }
+        let x = this.paddle.x
         if (this.input.gamepad.total !== 0) {
             const pad = this.input.gamepad.getPad(gamepadToUse);
             if (pad.left) {
-                console.log("isleft")
+                x -= 20;    
             }
             if (pad.right) {
-                console.log("isright")
+                x += 20;
             }
             if (pad.X) {
                 console.log("Square pressed")
                 this.scene.start('QuitGame');
             }
-
+            if (pad.A) {
+                this.startBall();
+            }
+            const axisX = pad.axes.length > 0 ? pad.axes[0].getValue() : 0;
+            if (axisX!=0) {
+                x += axisX * 25;
+            }
+        }
+        this.paddle.x = Phaser.Math.Clamp(x, 52, xsize - 52);
+        if (this.ball.getData('onPaddle')) {
+            this.ball.x = this.paddle.x;
         }
         this.scoreText.setText('Score: '+score);
     }
