@@ -10,8 +10,8 @@
 <body>
   <h1 class="zentriert font-swanky" onclick="location.reload()">LED-Pal by RetroRush V1</h1>
   <!-- Eigene Spiele hier hinzufügen
-    data-game="xxxx" -> Hier den Pfad zur HTML-Datei des Spiels angeben
-    data-ipc="xxx" -> Hier den IPC-Befehl angeben, der beim Klicken auf das Bild ausgeführt werden soll
+    data-game="xxxx" -> Hier den Pfad zur HTML-Datei (Startseite) des Spiels angeben
+    data-ipc="xxx" -> Hier den IPC-Befehl angeben, der beim Klicken auf das Bild ausgeführt werden soll.
     alt="..." -> Hier den Alt-Text für das Bild angeben
     class="electron-only" -> Diese Klasse sorgt dafür, dass das Bild nur in Electron angezeigt wird. Wenn du es auch im Browser anzeigen möchtest, entferne diese Klasse. 
    -->
@@ -19,7 +19,7 @@
       <div class="embla__container">
         <div class="embla__slide" data-game="Breakout/index.html">
           <img src="Breakout/assets/splashscreen.png" alt="Breakout aufrufen">
-          <div class="slide-caption">Breakout</div>
+          <div class="slide-caption">Breakout</div>   <!-- Text unterhalb des Slides -->
         </div>
         <div class="embla__slide" data-game="Snake/index.html">
           <img src="Snake/assets/splashscreen.jpg" alt="Snake aufrufen">
@@ -42,17 +42,17 @@
           <div class="slide-caption">Abschalten</div>
         </div>
       </div>
-      <div id="embla-caption" class="caption-display"></div>
+      <div id="embla-caption" class="caption-display"></div>  <!-- Hier wird die Beschreibung des aktuellen Slides angezeigt -->
   </div>
-  <h2>IP-Adresse von LED-Pal: <span id="iptext"> </span></h2>
-  <h3 class="font-pressstart">Hier kann man auch noch was hinschreiben.</h1>
-  <h3 class="font-peralta">Idee, Konzept und Realisation: Glaser Noah, Sonnleithner Nico und n.n.</h3>
+  <h2 class="electron-only">IP-Adresse von LED-Pal: <span id="iptext"> </span></h2>
+  <h2 class="font-peralta">Idee, Konzept und Realisation:<br>Glaser Noah, Kovacevic Adrian und Sonnleithner Nico</h2>
 
   <script src="./js/embla-carousel.umd.copy.js"></script>
   <script>
     // Entferne alle electron spezfischen Slides, wenn nicht in Electron
     if (!isElectron()) {	
-      document.querySelectorAll('.embla__container .electron-only').forEach(el => el.remove());
+      //document.querySelectorAll('.embla__container .electron-only').forEach(el => el.remove());
+      document.querySelectorAll('.electron-only').forEach(el => el.remove());
     }
     // Überprüfe, ob die App in Electron läuft
     function isElectron() {
@@ -70,12 +70,13 @@
             }
           }
         }
-        return "<nicht gefunden>";
+        return "<nicht verbunden>";
       }
       return "<im Browser nicht verfügbar>";
     }
-    document.getElementById("iptext").innerText = getLocalIP();
-
+    if (document.getElementById('iptext')) {
+      document.getElementById("iptext").innerText = getLocalIP();
+    }
 
     // Sende ipc Command to calling process
     function sendIpc(cmd) {
@@ -84,9 +85,9 @@
     }
     const emblaNode = document.querySelector('.embla');
     const embla = EmblaCarousel(emblaNode, {
-      align: 'center',               // linksbündig statt zentriert
-      containScroll: false,       // verhindert unendliches Scrollen über das letzte Slide hinaus
-      loop: true                   // kein Loop (empfohlen bei wenigen Slides)
+      align: 'center',                // zentriert das gewählte Slide
+      containScroll: false,           // verhindert unendliches Scrollen über das letzte Slide hinaus
+      loop: true                      // loop - nach demn letzten folgt wieder das erste
     });
     window.embla = embla;
     const slides = document.querySelectorAll('.embla__slide');
@@ -108,6 +109,7 @@
     embla.on('select', updateSelected);
     updateSelected();
 
+    // Füge Event-Listener für jeden Slide hinzu
     slides.forEach(slide => {
       slide.addEventListener('click', () => {
         const url = slide.getAttribute('data-game');
