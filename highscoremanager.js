@@ -8,7 +8,7 @@ export function loadHighscores(gameName) {
         // Electron: Lokale Datei laden
         const fs = require('fs');
         const path = require('path');
-        const filePath = path.join(__dirname, 'highscores.json');
+        const filePath = path.join(__dirname, '../highscores.json');
 
         try {
             if (fs.existsSync(filePath)) {
@@ -44,7 +44,7 @@ export function saveHighscores(gameName, highscores) {
         // Elektron: Lokale Datei speichern
         const fs = require('fs');
         const path = require('path');
-        const filePath = path.join(__dirname, 'highscores.json');
+        const filePath = path.join(__dirname, '../highscores.json');
 
         try {
             let allHighscores = {};
@@ -99,4 +99,34 @@ export function getHighestScore(gameName) {
     const highscores = loadHighscores(gameName);
     // Der höchste Highscore ist der erste in der sortierten Liste
     return highscores[0]?.score || 0;
+}
+
+export function resetHighscores(gameName) {
+    const emptyScores = Array(5).fill({ name: "---", score: 0 });
+
+    if (isElectron()) {
+        const fs = require('fs');
+        const path = require('path');
+        const filePath = path.join(__dirname, '../highscores.json');
+
+        try {
+            let allHighscores = {};
+            if (fs.existsSync(filePath)) {
+                allHighscores = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            }
+
+            allHighscores[gameName] = emptyScores;
+            fs.writeFileSync(filePath, JSON.stringify(allHighscores, null, 2));
+            console.log(`Highscores für "${gameName}" wurden (Electron) zurückgesetzt.`);
+        } catch (error) {
+            console.error("Fehler beim Zurücksetzen der Highscores in Electron:", error);
+        }
+    } else {
+        try {
+            localStorage.setItem(gameName, JSON.stringify(emptyScores));
+            console.log(`Highscores für "${gameName}" wurden (Browser) zurückgesetzt.`);
+        } catch (error) {
+            console.error("Fehler beim Zurücksetzen der Highscores im Browser:", error);
+        }
+    }
 }
