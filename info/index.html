@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Phaser 3 Gamepad UI Template</title>
+    <link rel="stylesheet" type="text/css" href="../css/styles.css">
+    <script src="../js/phaser.min.js"></script>
+    <style>
+        body {
+            background: #222;
+            color: #fff;
+            font-family: sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        #ui {
+            margin-top: 40px;
+        }
+        .control {
+            margin: 20px;
+        }
+        .control input {
+            font-size: 20px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 class="zentriert font-swanky" onclick="location.reload()">Info</h1>
+    <h3>LED-Pal ist ein Gemeinschaftsprojekt von Glaser Noah, Kovacevic Adrian und Sonnleithner Nico</h3>
+    <section id="disclaimer" style="padding: 1em; background: #f9f9f9; color: #333; font-family: sans-serif; max-width: 600px; margin: 1em auto; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <h4>Disclaimer / Rechtlicher Hinweis</h3>
+        <p>Dieses Programm wurde zu nicht-kommerziellen Zwecken erstellt.<br>
+        Alle Rechte an verwendeter Software, Grafiken und Sounds verbleiben bei den jeweiligen Rechteinhabern.</p>
+        <h5>Verwendete Komponenten:</h5>
+
+        <p><strong>Phaser 3</strong> – &copy; 2013–2025 Photon Storm Ltd. (https://phaser.io)</p>
+        <p><strong>Embla Carousel</strong> – &copy; davidcetinkaya (https://www.embla-carousel.com)</p>
+        <p><strong>Bilder und Sounds</strong> – stammen teilweise von der Plattform <strong>Pixabay</strong> (https://pixabay.com>)</p>
+
+        <p>Alle verwendeten Marken und urheberrechtlich geschützten Inhalte sind Eigentum der jeweiligen Inhaber und dienen ausschließlich der Illustration und Umsetzung des Spiels.</p>
+        <p>Sollten versehentlich Rechte verletzt worden sein, bitten wir um eine entsprechende Nachricht – diese Inhalte werden dann umgehend entfernt oder angepasst.</p>
+        <p>Teile dieser Software und der darin enthaltenen Grafiken wurden mit Hilfe von künsticher Intelligenz (AI) generiert.</p>
+    </section>
+
+
+
+
+
+    <h2 class="font-peralta">Idee, Konzept und Realisation:<br>Glaser Noah, Kovacevic Adrian und Sonnleithner Nico</h2>
+    <div id="ui">
+        <div class="rr_button"><button id="btn1">Button 1</button></div>
+        <div class="control"><button id="btn2">Button 2</button></div>
+        <div class="control">
+            <label><input type="radio" name="choice" id="radio1"> Option A</label>
+        </div>
+        <div class="control">
+            <input type="range" min="0" max="100" value="50" id="slider" />
+        </div>
+    </div>
+
+ 
+</body>
+</html>

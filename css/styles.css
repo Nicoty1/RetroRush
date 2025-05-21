@@ -118,3 +118,24 @@
     font-weight: bold;
   }
 
+  .rr_button {
+    background-color: #0180ba;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 5px;
+  }
+  .rr_button:hover {
+    background-color: #56d2e0;
+  }
+
+  #disclaimer {
+    line-height: 1.2;
+  }
+
