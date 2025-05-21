@@ -84,7 +84,7 @@
 
   .embla__slide.is-selected {
     /*filter: brightness(1.2); */
-    border: 6px solid rgb(3, 249, 241);
+    border: 6px solid #ff9ec8;
     border-radius: 20px;
   }
 
@@ -104,11 +104,18 @@
     display: none;
   }
 
-  .background {
+  .blue_background {
     height: 100vh;
     margin: 0;
     padding: 0;
     background: linear-gradient(to bottom, #56d2e0, #0180ba);
+  }
+
+  .rr_background {
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to bottom,#ffcde1, #ffdb79);
   }
 
   .logo_background {
@@ -119,10 +126,6 @@
   background-size: contain;
   background-position: top center;
   background-repeat: no-repeat;
-
-  
-  /* background-position: center;
-*/
   }
 
   .caption-display {
@@ -153,3 +156,12 @@
     line-height: 1.2;
   }
 
+.highlight-text {
+  color: #ff9ec8;
+  text-shadow:
+    -2px -2px 0 #ffdb79,
+     2px -2px 0 #ffdb79,
+    -2px  2px 0 #ffdb79,
+     2px  2px 0 #ffdb79;
+  font-weight: bold; /* optional für stärkeren Effekt */
+}
