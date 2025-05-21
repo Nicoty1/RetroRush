@@ -11,6 +11,57 @@ const GRID_X = 50;
 const GRID_Y = 30;
 const GRID_SIZE = 16;
 
+class SwipeManager {
+    constructor(scene, threshold = 50) {
+        this.scene = scene;
+        this.threshold = threshold;
+
+        this.swipeStart = null;
+        this.swipeEnd = null;
+        this.swipeDirection = null;
+        this.swipeReady = false;
+
+        scene.input.on('pointerdown', (pointer) => {
+            this.swipeStart = new Phaser.Math.Vector2(pointer.x, pointer.y);
+        });
+
+        scene.input.on('pointerup', (pointer) => {
+            this.swipeEnd = new Phaser.Math.Vector2(pointer.x, pointer.y);
+            this.swipeReady = true;
+        });
+    }
+
+    update() {
+        if (this.swipeReady && this.swipeStart && this.swipeEnd) {
+            const vector = this.swipeEnd.clone().subtract(this.swipeStart);
+
+            if (vector.length() > this.threshold) {
+                if (Math.abs(vector.x) > Math.abs(vector.y)) {
+                    this.swipeDirection = vector.x > 0 ? 'right' : 'left';
+                } else {
+                    this.swipeDirection = vector.y > 0 ? 'down' : 'up';
+                }
+            } else {
+                this.swipeDirection = null;
+            }
+
+            this.swipeReady = false;
+            this.swipeStart = null;
+            this.swipeEnd = null;
+        } else {
+            this.swipeDirection = null;
+        }
+    }
+
+    getDirection() {
+        return this.swipeDirection;
+    }
+
+    wasSwiped() {
+        return this.swipeDirection !== null;
+    }
+}
+
 class InitGame extends Phaser.Scene {
     constructor ()
     {
@@ -42,6 +93,7 @@ class MainScene extends Phaser.Scene {
         this.load.image('body', 'assets/body.png');
         this.load.image('head', 'assets/head.png');
         this.load.image('grass', 'assets/grass03.png');
+        this.load.audio('eatfood', 'assets/eating-chips-81092.mp3'); // von pixabay  
     }
 
     create ()
@@ -59,6 +111,8 @@ class MainScene extends Phaser.Scene {
 
         this.scoreText=this.add.text(20,20,'Score: '+score,TextStyles.score);
         this.highScoreText=this.add.text(230,20,'Highscore: '+highScore,TextStyles.highscore);
+
+        this.eatfoodsound = this.sound.add('eatfood');
 
         var Food = new Phaser.Class({
 
@@ -109,6 +163,7 @@ class MainScene extends Phaser.Scene {
 
                 this.heading = RIGHT;
                 this.direction = RIGHT;
+                this.scene=scene;
             },
 
             update: function (time)
@@ -160,6 +215,7 @@ class MainScene extends Phaser.Scene {
                 * The Math.wrap call allow the snake to wrap around the screen, so when
                 * it goes off any of the sides it re-appears on the other.
                 */
+               /*
                 switch (this.heading)
                 {
                     case LEFT:
@@ -177,7 +233,49 @@ class MainScene extends Phaser.Scene {
                     case DOWN:
                         this.headPosition.y = Phaser.Math.Wrap(this.headPosition.y + 1, 0, GRID_Y);
                         break;
+                }*/
+                switch (this.heading)
+                {
+                    case LEFT:
+                        this.headPosition.x -= 1;
+                        if (this.headPosition.x < 0) {
+                            console.log("headPosition.x < 0");
+                            this.scene.scene.start('GameOver'); 
+                            return;
+                        }
+                        break;
+
+                    case RIGHT:
+                        this.headPosition.x += 1;
+                        if (this.headPosition.x >= GRID_X) {
+                            console.log("headPosition.x >= GRID_X");
+                            this.scene.scene.start('GameOver'); 
+                            return;
+                        }
+                        break;
+
+                    case UP:
+                        this.headPosition.y -= 1;
+                        if (this.headPosition.y < 0) {
+                            console.log("headPosition.y < 0");
+                            this.scene.scene.start('GameOver'); 
+                            return;
+                        }
+                        break;
+
+                    case DOWN:
+                        this.headPosition.y += 1;
+                        if (this.headPosition.y >= GRID_Y) {
+                            console.log("headPosition.y >= GRID_Y");
+                            this.scene.scene.start('GameOver');
+                            return;
+                        }
+                        break;
                 }
+
+
+
+
 
                 this.direction = this.heading;
 
@@ -255,6 +353,8 @@ class MainScene extends Phaser.Scene {
         this.food = new Food(this, 3, 4);
 
         this.snake = new Snake(this, 8, 8);
+        // init swipeManager
+        this.swipeManager = new SwipeManager(this);
 
         //  Create our keyboard controls
         this.cursors = this.input.keyboard.createCursorKeys();
@@ -273,15 +373,30 @@ class MainScene extends Phaser.Scene {
     {
         score += 10;
         this.scoreText.setText('Score: '+score);
-        if (score >30) {
-            this.scene.start('GameOver');
-        }
-
+        this.eatfoodsound.play();
 
         //  First create an array that assumes all positions
         //  are valid for the new piece of food
 
         //  A Grid we'll use to reposition the food each time it's eaten
+
+        let testGrid = [];
+        for (let y = 0; y < GRID_Y; y++) {
+            testGrid[y] = [];
+
+            for (let x = 0; x < GRID_X; x++) {
+                if (
+                    x < 2 || x >= GRID_X - 2 ||   // linker/rechter Rahmen
+                    y < 2 || y >= GRID_Y - 2      // oberer/unterer Rahmen
+                ) {
+                    testGrid[y][x] = false;
+                } else {
+                    testGrid[y][x] = true;
+                }
+            }
+        }
+
+        /*
         var testGrid = [];
 
         for (var y = 0; y < GRID_Y; y++)
@@ -293,7 +408,8 @@ class MainScene extends Phaser.Scene {
                 testGrid[y][x] = true;
             }
         }
-
+        */
+        //  Now we need to remove all the positions that are occupied by the snake
         this.snake.updateGrid(testGrid);
 
         //  Purge out false positions
@@ -386,6 +502,29 @@ class MainScene extends Phaser.Scene {
             this.snake.faceDown();
         } 
 
+        // process swipes
+        this.swipeManager.update();
+        if (this.swipeManager.wasSwiped()) {
+            const dir = this.swipeManager.getDirection();
+            console.log('Swiped:', dir);
+            if (dir === 'left')
+            {
+                this.snake.faceLeft();
+            }
+            else if (dir === 'right')
+            {
+                this.snake.faceRight();
+            }
+            else if (dir === 'up')
+            {
+                this.snake.faceUp();
+            }
+            else if (dir === 'down')
+            {
+                this.snake.faceDown();
+            } 
+        }
+
         if (this.input.activePointer.rightButtonDown()) {
             console.log("Mouse right pressed")
             this.scene.start('QuitGame');
@@ -434,6 +573,7 @@ class GameOver extends Phaser.Scene {
     preload() {
         this.load.setBaseURL('.');
         this.load.image('gameover', 'assets/gameover.jpg'); // Pfad zum Bild
+        this.load.audio('gameover', 'assets/game-over-classic-206486.mp3'); // von pixabay  
     }
 
     create() {
@@ -451,13 +591,15 @@ class GameOver extends Phaser.Scene {
         this.add.text(width / 2, height / 2 - (height * 0.125), 'GAME', TextStyles.gameover(height)).setOrigin(0.5);
         this.add.text(width / 2, height / 2 + (height * 0.125), 'OVER', TextStyles.gameover(height)).setOrigin(0.5);
 
+        this.gameoversound = this.sound.add('gameover');
+        this.gameoversound.play();
+
         if (isHighscore('Snake',score)) {
             insertHighscore('Snake', 'SON', score);
         }
     }
 
     update() {
-        console.log('update started');
         if (edgeTrigger(this.mousePressed,this.input.activePointer.isDown)) {
             this.scene.start('SplashScreen');  // Szene starten           
         }    
