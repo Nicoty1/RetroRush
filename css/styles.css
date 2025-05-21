@@ -111,6 +111,20 @@
     background: linear-gradient(to bottom, #56d2e0, #0180ba);
   }
 
+  .logo_background {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  background: url('../img/RetroRush_leer.png');
+  background-size: contain;
+  background-position: top center;
+  background-repeat: no-repeat;
+
+  
+  /* background-position: center;
+*/
+  }
+
   .caption-display {
     text-align: center;
     margin-top: 0.5rem;
