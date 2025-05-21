@@ -84,7 +84,7 @@
 
   .embla__slide.is-selected {
     /*filter: brightness(1.2); */
-    border: 6px solid #ff9ec8;
+    border: 6px solid #f564a3;
     border-radius: 20px;
   }
 
@@ -132,7 +132,14 @@
     text-align: center;
     margin-top: 0.5rem;
     font-size: 3.5vw;
-    font-weight: bold;
+    color: #f564a3;
+    text-shadow:
+      -2px -2px 0 #ffdb79,
+      2px -2px 0 #ffdb79,
+      -2px  2px 0 #ffdb79,
+      2px  2px 0 #ffdb79;
+    font-weight: bold; /* optional für stärkeren Effekt */
+
   }
 
   .rr_button {
@@ -157,7 +164,7 @@
   }
 
 .highlight-text {
-  color: #ff9ec8;
+  color: #f564a3;
   text-shadow:
     -2px -2px 0 #ffdb79,
      2px -2px 0 #ffdb79,
