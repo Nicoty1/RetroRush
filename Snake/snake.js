@@ -573,6 +573,7 @@ class GameOver extends Phaser.Scene {
     preload() {
         this.load.setBaseURL('.');
         this.load.image('gameover', 'assets/gameover.jpg'); // Pfad zum Bild
+        this.load.audio('gameover', 'assets/game-over-classic-206486.mp3'); // von pixabay  
     }
 
     create() {
@@ -589,6 +590,9 @@ class GameOver extends Phaser.Scene {
         // Game Over Text erstellen
         this.add.text(width / 2, height / 2 - (height * 0.125), 'GAME', TextStyles.gameover(height)).setOrigin(0.5);
         this.add.text(width / 2, height / 2 + (height * 0.125), 'OVER', TextStyles.gameover(height)).setOrigin(0.5);
+
+        this.gameoversound = this.sound.add('gameover');
+        this.gameoversound.play();
 
         if (isHighscore('Snake',score)) {
             insertHighscore('Snake', 'SON', score);
