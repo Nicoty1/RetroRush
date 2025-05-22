@@ -11,6 +11,10 @@ class InitGame extends Phaser.Scene {
     create () {
         const storedIndex = localStorage.getItem('selectedPadRetroRush');
         gamepadToUse = storedIndex !== null ? parseInt(storedIndex, 10) : 0;
+        const storedVolume = localStorage.getItem('gameVolume');
+        const gameVolume = storedVolume !== null ? parseFloat(storedVolume) : 1.0;
+        console.log("Game Volume: " + gameVolume);
+        this.sound.volume = gameVolume;
         if (isElectron()) {
             this.input.setDefaultCursor('none')
         }

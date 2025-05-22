@@ -63,11 +63,13 @@
     document.addEventListener('DOMContentLoaded', () => {
       // === Mute-Checkbox ===
       const mute = document.getElementById('mute');
-      const savedVolume = parseInt(localStorage.getItem('gameVolume'), 10);
+      const savedVolume = parseFloat(localStorage.getItem('gameVolume'), 10);
+      console.log("Saved Volume: " + savedVolume);
       mute.checked = savedVolume === 0;
       mute.addEventListener('change', () => {
         const value = mute.checked ? 0 : 1;
         localStorage.setItem('gameVolume', value.toString());
+        console.log("New Volume: " + savedVolume);
       });
 
       // === Flightmode-Checkbox ===
@@ -209,7 +211,9 @@
                     } else if (el.type === 'checkbox') {
                       el.checked = !el.checked; // Checkbox umschalten
                       const value = el.checked ? 0 : 1;
+                      // Achtung: aktuell wird nur gameVolume gespeichert
                       localStorage.setItem('gameVolume', value.toString());
+                      console.log("New Value: " + value);
                     } else if (el.type === 'range') {
                       el.value = Math.min(parseInt(el.value) + 5, parseInt(el.max));
                     }
