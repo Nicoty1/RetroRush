@@ -1,5 +1,5 @@
-import { edgeTrigger, isElectron, checkGamepadIndex} from '../helper.js';
-import { loadHighscores,  insertHighscore, isHighscore, getHighestScore } from '../highscoremanager.js';
+import { edgeTrigger, isElectron, checkGamepadIndex} from '../js/helper.js';
+import { loadHighscores,  insertHighscore, isHighscore, getHighestScore } from '../js/highscoremanager.js';
 import { TextStyles } from './styles/textStyles.js';
 //  Direction consts
 const UP = 0;

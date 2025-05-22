@@ -1,6 +1,6 @@
 
-import { edgeTrigger, isElectron} from '../helper.js';
-import { loadHighscores, insertHighscore, isHighscore, getHighestScore } from '../highscoremanager.js';
+import { edgeTrigger, isElectron} from '../js/helper.js';
+import { loadHighscores, insertHighscore, isHighscore, getHighestScore } from '../js/highscoremanager.js';
 import { TextStyles } from './styles/textStyles.js';
 
 class InitGame extends Phaser.Scene {

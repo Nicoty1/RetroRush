@@ -164,6 +164,20 @@
     margin: 0 auto;
   }
 
+  .user-intrface {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* NEU: Nur auf das Label mit der Checkbox anwenden */
+.rr_button label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+}
+
   .ui-selected {
     background-color: #56d2e0;
   }
@@ -190,3 +204,19 @@
       2px  2px 0 #ffdb79;
     font-weight: bold; /* optional für stärkeren Effekt */
   }
+
+  .popup {
+  display: none;
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #fe5a5d;
+  color: white;
+  padding: 1em 2em;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  font-family: sans-serif;
+  z-index: 1000;
+}
+

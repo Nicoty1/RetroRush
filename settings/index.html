@@ -5,7 +5,6 @@
     <title>Einstellungen</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="../css/styles.css">
-    <script type="module" src="../js/highscoremanager.js"></script>  
     <script src="../js/phaser.min.js"></script>
 </head>
 <body>
@@ -17,8 +16,6 @@
 
   <h1 class="zentriert font-swanky  highlight-text" onclick="location.reload()">Einstellungen</h1>
 
-
-  
   <script> controls = ['mute','flightmode','delete-highscore','back']; </script>     <!-- Enthält alle Controls, welche mit dem Gamepad ansteuerbar sein sollen -->
   
   <div class="user-intrface">
@@ -58,22 +55,10 @@
     </div>
 -->
 
-  <div id="popup" style="
-    display: none;
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #f564a3;
-    color: white;
-    padding: 1em 2em;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    font-family: sans-serif;
-    z-index: 1000;
-  ">Hallo! Das ist ein Popup.</div>
+  <div class="popup" id="popup">Hallo! Das ist ein Popup.</div>
 
-  <script>
+  <script type = "module">
+    import { resetHighscores } from '../js/highscoremanager.js';
 
     document.addEventListener('DOMContentLoaded', () => {
       // === Mute-Checkbox ===
@@ -92,7 +77,7 @@
       flightmode.addEventListener('change', () => {
         const value = flightmode.checked ? 1 : 0;
         localStorage.setItem('flightMode', value.toString());
-        showPopup("Die Einstellung des Flugmodus wird aktuell nicht unterstützt. Bitte gehen Sie in das Betriebsystem und aktivieren Sie den Flugmodus manuell.");
+        showPopup("Die Einstellung des Flugmodus wird aktuell nicht unterstützt. Bitte gehen Sie in das Betriebsystem und aktivieren oder deaktivieren Sie den Flugmodus manuell.");
       });
 
       const deleteBtn = document.getElementById('delete-highscore');
@@ -101,21 +86,26 @@
         resetHighscores('breakout');
         showPopup("Highscores wurden gelöscht.");
       });
-
-
-
-
     });
 
 
   function showPopup(message) {
     const popup = document.getElementById('popup');
+
+    // Aktuelles Timeout abbrechen, falls noch aktiv
+    if (popupTimeout !== null) {
+      clearTimeout(popupTimeout);
+    }
+
+    // Nachricht setzen und anzeigen
     popup.textContent = message;
     popup.style.display = 'block';
 
-    setTimeout(() => {
+    // Neues Timeout setzen und speichern
+    popupTimeout = setTimeout(() => {
       popup.style.display = 'none';
-    }, 4000); 
+      popupTimeout = null; // zurücksetzen
+    }, 4000);
   }
 
   </script>
@@ -240,6 +230,7 @@
     let gamepadToUse = 0;
     let gamePadPressed = false;
     let selectedIndex = 3;
+    let popupTimeout = null;
 
     new Phaser.Game(config);
   </script>

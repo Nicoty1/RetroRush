@@ -1,4 +1,4 @@
-import { edgeTrigger, isElectron} from '../helper.js';
+import { edgeTrigger, isElectron} from '../js/helper.js';
 
 class InitGame extends Phaser.Scene {
     constructor ()
