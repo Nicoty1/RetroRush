@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Phaser 3 Gamepad UI Template</title>
+    <style>
+        body {
+            background: #222;
+            color: #fff;
+            font-family: sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        #ui {
+            margin-top: 40px;
+        }
+        .control {
+            margin: 20px;
+        }
+        .control input {
+            font-size: 20px;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Phaser 3 + Gamepad UI</h1>
+    <div id="ui">
+        <div class="control"><button id="btn1">Button 1</button></div>
+        <div class="control"><button id="btn2">Button 2</button></div>
+        <div class="control">
+            <label><input type="radio" name="choice" id="radio1"> Option A</label>
+        </div>
+        <div class="control">
+            <input type="range" min="0" max="100" value="50" id="slider" />
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3/dist/phaser.min.js"></script>
+    <script>
+        // Minimaler Phaser-Init (für Kompatibilität mit Gamepad, kein Spiel notwendig)
+        const config = {
+            type: Phaser.AUTO,
+            width: 1,
+            height: 1,
+            scene: { update }
+        };
+        const game = new Phaser.Game(config);
+
+        let selectedIndex = 0;
+        const controls = ['btn1', 'btn2', 'radio1', 'slider'];
+/*
+        function highlight(index) {
+            controls.forEach((id, i) => {
+                const el = document.getElementById(id);
+                if (el) el.style.outline = i === index ? '2px solid yellow' : 'none';
+            });
+        }
+*/
+        function update() {
+            const pads = navigator.getGamepads();
+            const pad = pads[0];
+            if (!pad) return;
+
+            // Steuerung: Steuerkreuz runter/hoch
+            if (pad.buttons[13].pressed) {
+                selectedIndex = (selectedIndex + 1) % controls.length;
+                highlight(selectedIndex);
+            } else if (pad.buttons[12].pressed) {
+                selectedIndex = (selectedIndex - 1 + controls.length) % controls.length;
+                highlight(selectedIndex);
+            }
+
+            // Aktion (Button A)
+            if (pad.buttons[0].pressed) {
+                const el = document.getElementById(controls[selectedIndex]);
+                if (el) {
+                    if (el.tagName === 'INPUT' && el.type === 'range') {
+                        el.value = parseInt(el.value) + 1; // Beispiel: erhöhen
+                    } else {
+                        el.click();
+                    }
+                }
+            }
+        }
+
+        // Initiale Hervorhebung
+        highlight(selectedIndex);
+    </script>
+</body>
+</html>

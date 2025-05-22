@@ -1,65 +1,172 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" class="rr_background">
 <head>
     <meta charset="UTF-8">
-    <title>Phaser 3 Gamepad UI Template</title>
+    <title>Info Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" type="text/css" href="../css/styles.css">
     <script src="../js/phaser.min.js"></script>
-    <style>
-        body {
-            background: #222;
-            color: #fff;
-            font-family: sans-serif;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
-        #ui {
-            margin-top: 40px;
-        }
-        .control {
-            margin: 20px;
-        }
-        .control input {
-            font-size: 20px;
-            padding: 10px;
-        }
-    </style>
 </head>
 <body>
 
-    <h1 class="zentriert font-swanky" onclick="location.reload()">Info</h1>
-    <h3>LED-Pal ist ein Gemeinschaftsprojekt von Glaser Noah, Kovacevic Adrian und Sonnleithner Nico</h3>
-    <section id="disclaimer" style="padding: 1em; background: #f9f9f9; color: #333; font-family: sans-serif; max-width: 600px; margin: 1em auto; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-        <h4>Disclaimer / Rechtlicher Hinweis</h3>
-        <p>Dieses Programm wurde zu nicht-kommerziellen Zwecken erstellt.<br>
-        Alle Rechte an verwendeter Software, Grafiken und Sounds verbleiben bei den jeweiligen Rechteinhabern.</p>
-        <h5>Verwendete Komponenten:</h5>
+  <h1 class="zentriert font-swanky  highlight-text" onclick="location.reload()">Info</h1>
+    <section class="disclaimer">
+        <b>Disclaimer / Rechtlicher Hinweis</b>
+        <p>Dieses Programm wurde zu nicht-kommerziellen Zwecken erstellt.
 
-        <p><strong>Phaser 3</strong> – &copy; 2013–2025 Photon Storm Ltd. (https://phaser.io)</p>
-        <p><strong>Embla Carousel</strong> – &copy; davidcetinkaya (https://www.embla-carousel.com)</p>
-        <p><strong>Bilder und Sounds</strong> – stammen teilweise von der Plattform <strong>Pixabay</strong> (https://pixabay.com>)</p>
-
-        <p>Alle verwendeten Marken und urheberrechtlich geschützten Inhalte sind Eigentum der jeweiligen Inhaber und dienen ausschließlich der Illustration und Umsetzung des Spiels.</p>
-        <p>Sollten versehentlich Rechte verletzt worden sein, bitten wir um eine entsprechende Nachricht – diese Inhalte werden dann umgehend entfernt oder angepasst.</p>
-        <p>Teile dieser Software und der darin enthaltenen Grafiken wurden mit Hilfe von künsticher Intelligenz (AI) generiert.</p>
+        Alle Rechte an verwendeter Software, Grafiken und Sounds verbleiben bei den jeweiligen Rechteinhabern und dienen ausschließlich der Illustration und Umsetzung des Programms.
+        Teile dieser Software und der darin enthaltenen Grafiken wurden mit Hilfe von künsticher Intelligenz (AI) erstellt</p>
+        <p>Die Nutzung dieser Software erfolgt auf eigene Gefahr. Die Autoren übernehmen keine Haftung für Schäden, die durch die Nutzung dieser Software entstehen.</p>
+        <p>LED-Pal ist ein Gemeinschaftsprojekt von Glaser Noah, Kovacevic Adrian und Sonnleithner Nico</p>
     </section>
 
+    <script> controls = ['btn1']; </script>     <!-- Enthält alle Controls, welche mit dem Gamepad ansteuerbar sein sollen -->
 
-
-
-
-    <h2 class="font-peralta">Idee, Konzept und Realisation:<br>Glaser Noah, Kovacevic Adrian und Sonnleithner Nico</h2>
-    <div id="ui">
-        <div class="rr_button"><button id="btn1">Button 1</button></div>
-        <div class="control"><button id="btn2">Button 2</button></div>
-        <div class="control">
-            <label><input type="radio" name="choice" id="radio1"> Option A</label>
-        </div>
-        <div class="control">
-            <input type="range" min="0" max="100" value="50" id="slider" />
-        </div>
+    <div class="user-intrface">
+        <button class="rr_button zentriert" id="btn1" onclick="window.location.href='../index.html'">Zurück ins Hauptmenu</button>
     </div>
+<!--
+    <div class="rr_button">
+    <label>
+        <input type="radio" name="choice" id="radio1" value="A">
+        <span>Option A</span>
+    </label>
+    </div>
+    <div class="rr_button">
+    <label>
+        <input type="radio" name="choice" id="radio2" value="B">
+        <span>Option B</span>
+    </label>
+    </div>
+    <div class="rr_button">
+        <input type="range" min="0" max="100" value="50" id="slider" />
+    </div>
+-->
+
+
+  <script>
+    // Entferne alle electron spezfischen Slides, wenn nicht in Electron
+    if (!isElectron()) {	
+      document.querySelectorAll('.electron-only').forEach(el => el.remove());
+    }
+    // Überprüfe, ob die App in Electron läuft
+    function isElectron() {
+      return (typeof process !== 'undefined' && process.versions && process.versions.electron);
+    }
+  </script>
+  <script>
+
+    function updateSelection() {
+        controls.forEach((id, i) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+
+            // Wenn Button: selbst markieren
+            // Wenn Input (radio, slider): nächsthöheren Container oder Label markieren
+            let target = el;
+            if (el.tagName === 'INPUT') {
+            const parent = el.closest('.rr_button') || el.closest('label');
+            if (parent) target = parent;
+            }
+
+            target.classList.toggle('ui-selected', i === selectedIndex);
+        });
+    }
+
+    const config = {
+      type: Phaser.AUTO,
+      width: 1,
+      height: 1,
+      input: {
+        gamepad: true
+      },
+      scene: {
+        create: function () {
+          console.log('Phaser game created');
+          // Gamepad aktivieren
+          //this.input.gamepad.once('connected', (pad) => {
+         //   console.log('Gamepad connected:', pad);
+          //});
+          // hole das aktuelle Gamepad
+          const storedIndex = localStorage.getItem('selectedPadRetroRush');
+          gamepadToUse = storedIndex !== null ? parseInt(storedIndex, 10) : 0; 
+          updateSelection();
+        },
+        update: function () {
+          if (this.input.gamepad.total !== 0) {
+            let pad;
+            pad = this.input.gamepad.getPad(gamepadToUse);
+            if (pad.left || pad.right || pad.A || pad.X) {
+              if (!gamePadPressed) {
+                gamePadPressed = true;
+                if (pad.left)
+                {
+                    console.log("Left pressed");  
+                    selectedIndex = (selectedIndex - 1 + controls.length) % controls.length;
+                    updateSelection(); 
+                  // scroll left
+                }
+                else if (pad.right)
+                {
+                    console.log("Right pressed");  
+                    selectedIndex = (selectedIndex + 1) % controls.length;
+                    updateSelection();         
+                    // scroll right	
+
+                }
+                else if (pad.A) {
+                    console.log("Select pressed");
+
+                    const currentId = controls[selectedIndex];
+                    const el = document.getElementById(currentId);
+
+                    if (el) {
+                        if (el.tagName === 'BUTTON') {
+                        el.click(); // Button auslösen
+                        } else if (el.type === 'radio') {
+                        el.checked = !el.checked; // Radio umschalten
+                        } else if (el.type === 'range') {
+                        el.value = Math.min(parseInt(el.value) + 5, parseInt(el.max)); // Slider erhöhen
+                        }
+                    }
+
+
+                }
+                else if (pad.X) {
+                    console.log("Quit pressed");
+                    window.location.href = "../index.html";
+                }
+              }
+            }
+            else {
+              gamePadPressed = false;
+            }
+          }
+        }
+      }
+    };
+    let gamepadToUse = 0;
+    let gamePadPressed = false;
+    let selectedIndex = 0;
+
+    new Phaser.Game(config);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
  
 </body>
