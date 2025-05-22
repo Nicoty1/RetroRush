@@ -15,11 +15,9 @@ function createWindow() {
       //preload: path.join(__dirname, 'preload.js'), // falls du einen Preload-Script nutzen möchtest
     }
   });
-  //shell.openPath(path.join(__dirname, 'index.html')); // oder: openExternal für URLs
   win.loadFile(path.join(__dirname, 'index.html'));
-  //win.loadURL('data:text/html;charset=utf-8,<h1>Hallo</h1>');
   // Optional: DevTools öffnen                                                                                         
-  win.webContents.openDevTools();
+  // win.webContents.openDevTools();
 }
 
 app.whenReady().then(createWindow);
