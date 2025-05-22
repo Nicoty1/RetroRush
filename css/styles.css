@@ -143,7 +143,7 @@
   }
 
   .rr_button {
-    background-color: #0180ba;
+    background-color: #f564a3;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -153,22 +153,40 @@
     font-size: 16px;
     margin: 4px 2px;
     cursor: pointer;
-    border-radius: 5px;
+    border-radius: 8px;
   }
-  .rr_button:hover {
+  .rr_button:hover { 
     background-color: #56d2e0;
   }
 
-  #disclaimer {
-    line-height: 1.2;
+  .rr_button.zentriert {
+    display: block;
+    margin: 0 auto;
   }
 
-.highlight-text {
-  color: #f564a3;
-  text-shadow:
-    -2px -2px 0 #ffdb79,
-     2px -2px 0 #ffdb79,
-    -2px  2px 0 #ffdb79,
-     2px  2px 0 #ffdb79;
-  font-weight: bold; /* optional für stärkeren Effekt */
-}
+  .ui-selected {
+    background-color: #56d2e0;
+  }
+
+
+  .disclaimer {
+    padding: 1em;
+    background: #f9f9f9;
+    color: #333;
+    font-family: sans-serif;
+    max-width: 600px;
+    margin: 1em auto;
+    border-radius: 8px;
+    border: 5px solid #f564a3;       
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .highlight-text {
+    color: #f564a3;
+    text-shadow:
+      -2px -2px 0 #ffdb79,
+      2px -2px 0 #ffdb79,
+      -2px  2px 0 #ffdb79,
+      2px  2px 0 #ffdb79;
+    font-weight: bold; /* optional für stärkeren Effekt */
+  }
