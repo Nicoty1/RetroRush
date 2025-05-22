@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="de" class="rr_background">
+<head>
+    <meta charset="UTF-8">
+    <title>Einstellungen</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="../css/styles.css">
+    <script type="module" src="../js/highscoremanager.js"></script>  
+    <script src="../js/phaser.min.js"></script>
+</head>
+<body>
+  <!--
+  Highscore löschen
+  Sound Mute (später Lautstärke einstellen)
+  Flugmodus vorsehen (später implementieren)
+  -->
+
+  <h1 class="zentriert font-swanky  highlight-text" onclick="location.reload()">Einstellungen</h1>
+
+
+  
+  <script> controls = ['mute','flightmode','delete-highscore','back']; </script>     <!-- Enthält alle Controls, welche mit dem Gamepad ansteuerbar sein sollen -->
+  
+  <div class="user-intrface">
+    <div class="rr_button zentriert">
+      <label>
+        <input type="checkbox" id="mute" value="mute">
+        <span>Tonausgabe deaktivieren</span>
+      </label>
+    </div>
+    <br><br>
+    <div class="rr_button zentriert">
+      <label>
+        <input type="checkbox" id="flightmode" value="flightMode">
+        <span>Flugmodus aktivieren</span>
+      </label>
+    </div>
+    <br><br>
+    <button class="rr_button zentriert" id="delete-highscore">Highscores löschen</button>
+    <br><br>
+    <button class="rr_button zentriert" id="back" onclick="window.location.href='../index.html'">Zurück ins Hauptmenu</button>
+  </div>
+<!--
+    <div class="rr_button">
+    <label>
+        <input type="radio" name="choice" id="radio1" value="A">
+        <span>Option A</span>
+    </label>
+    </div>
+    <div class="rr_button">
+    <label>
+        <input type="radio" name="choice" id="radio2" value="B">
+        <span>Option B</span>
+    </label>
+    </div>
+    <div class="rr_button">
+        <input type="range" min="0" max="100" value="50" id="slider" />
+    </div>
+-->
+
+  <div id="popup" style="
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #f564a3;
+    color: white;
+    padding: 1em 2em;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    font-family: sans-serif;
+    z-index: 1000;
+  ">Hallo! Das ist ein Popup.</div>
+
+  <script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // === Mute-Checkbox ===
+      const mute = document.getElementById('mute');
+      const savedVolume = parseInt(localStorage.getItem('gameVolume'), 10);
+      mute.checked = savedVolume === 0;
+      mute.addEventListener('change', () => {
+        const value = mute.checked ? 0 : 1;
+        localStorage.setItem('gameVolume', value.toString());
+      });
+
+      // === Flightmode-Checkbox ===
+      const flightmode = document.getElementById('flightmode');
+      const savedFlight = parseInt(localStorage.getItem('flightMode'), 10);
+      flightmode.checked = savedFlight === 1;
+      flightmode.addEventListener('change', () => {
+        const value = flightmode.checked ? 1 : 0;
+        localStorage.setItem('flightMode', value.toString());
+        showPopup("Die Einstellung des Flugmodus wird aktuell nicht unterstützt. Bitte gehen Sie in das Betriebsystem und aktivieren Sie den Flugmodus manuell.");
+      });
+
+      const deleteBtn = document.getElementById('delete-highscore');
+      deleteBtn.addEventListener('click', () => {
+        resetHighscores('snake');
+        resetHighscores('breakout');
+        showPopup("Highscores wurden gelöscht.");
+      });
+
+
+
+
+    });
+
+
+  function showPopup(message) {
+    const popup = document.getElementById('popup');
+    popup.textContent = message;
+    popup.style.display = 'block';
+
+    setTimeout(() => {
+      popup.style.display = 'none';
+    }, 4000); 
+  }
+
+  </script>
+
+  <script>
+    // Entferne alle electron spezfischen Slides, wenn nicht in Electron
+    if (!isElectron()) {	
+      document.querySelectorAll('.electron-only').forEach(el => el.remove());
+    }
+    // Überprüfe, ob die App in Electron läuft
+    function isElectron() {
+      return (typeof process !== 'undefined' && process.versions && process.versions.electron);
+    }
+  </script>
+  <script>
+
+    function updateSelection() {
+        controls.forEach((id, i) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+
+            // Wenn Button: selbst markieren
+            // Wenn Input (radio, slider): nächsthöheren Container oder Label markieren
+            let target = el;
+            if (el.tagName === 'INPUT') {
+            const parent = el.closest('.rr_button') || el.closest('label');
+            if (parent) target = parent;
+            }
+            target.classList.toggle('ui-selected', i === selectedIndex);
+        });
+    }
+
+    // 🆕 Event-Handler zum Setzen von selectedIndex bei Maus oder Touch
+    controls.forEach((id, i) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+
+      // Wenn das Element angeklickt oder fokussiert wird, aktualisiere selectedIndex
+      el.addEventListener('focus', () => {
+        selectedIndex = i;
+        updateSelection();
+      });
+
+      el.addEventListener('click', () => {
+        selectedIndex = i;
+        updateSelection();
+      });
+    }); 
+
+    const config = {
+      type: Phaser.AUTO,
+      width: 1,
+      height: 1,
+      input: {
+        gamepad: true
+      },
+      scene: {
+        create: function () {
+          console.log('Phaser game created');
+          // Gamepad aktivieren
+          //this.input.gamepad.once('connected', (pad) => {
+         //   console.log('Gamepad connected:', pad);
+          //});
+          // hole das aktuelle Gamepad
+          const storedIndex = localStorage.getItem('selectedPadRetroRush');
+          gamepadToUse = storedIndex !== null ? parseInt(storedIndex, 10) : 0; 
+          updateSelection();
+        },
+        update: function () {
+          if (this.input.gamepad.total !== 0) {
+            let pad;
+            pad = this.input.gamepad.getPad(gamepadToUse);
+            if (pad.left || pad.right || pad.A || pad.X ||pad.up || pad.down) {
+              if (!gamePadPressed) {
+                gamePadPressed = true;
+                if (pad.left || pad.up)
+                {
+                    console.log("Left pressed");  
+                    selectedIndex = (selectedIndex - 1 + controls.length) % controls.length;
+                    updateSelection(); 
+                  // scroll left
+                }
+                else if (pad.right || pad.down)
+                {
+                    console.log("Right pressed");  
+                    selectedIndex = (selectedIndex + 1) % controls.length;
+                    updateSelection();         
+                    // scroll right	
+
+                }
+                else if (pad.A) {
+                    console.log("Select pressed");
+
+                    const currentId = controls[selectedIndex];
+                    const el = document.getElementById(currentId);
+
+                    if (el.tagName === 'BUTTON') {
+                      el.click(); // Button auslösen
+                    } else if (el.type === 'radio') {
+                      el.checked = !el.checked; // Radio umschalten
+                    } else if (el.type === 'checkbox') {
+                      el.checked = !el.checked; // Checkbox umschalten
+                      const value = el.checked ? 0 : 1;
+                      localStorage.setItem('gameVolume', value.toString());
+                    } else if (el.type === 'range') {
+                      el.value = Math.min(parseInt(el.value) + 5, parseInt(el.max));
+                    }
+                }
+                else if (pad.X) {
+                    console.log("Quit pressed");
+                    window.location.href = "../index.html";
+                }
+              }
+            }
+            else {
+              gamePadPressed = false;
+            }
+          }
+        }
+      }
+    };
+    let gamepadToUse = 0;
+    let gamePadPressed = false;
+    let selectedIndex = 3;
+
+    new Phaser.Game(config);
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+</body>
+</html>
