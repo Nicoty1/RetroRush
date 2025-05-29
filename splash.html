@@ -15,18 +15,31 @@
       height: 100vh;
       object-fit: cover;
     }
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: black;
+      opacity: 0;
+      transition: opacity 2s ease;
+      pointer-events: none;
+      z-index: 10;
+    }
   </style>
 </head>
 <body>
-  <video id="intro" autoplay></video>   // muted nach autplay wenn ohne sound abgespielt werden soll
+  <video id="intro" autoplay></video>
+  <div id="overlay"></div>
 
   <script>
     const video = document.getElementById('intro');
+    const overlay = document.getElementById('overlay');
 
-    // Liste der Videos
     const playlist = [
-      'img/RR.mp4',
       'img/RR2.mp4',
+      'img/RR.mp4'
     ];
 
     let current = 0;
@@ -38,19 +51,21 @@
         video.play();
         current++;
       } else {
-        // Nach letztem Video: weiter zu index.html
-        window.location = 'index.html';
+        // Letztes Video vorbei → Fade-Out einblenden
+        overlay.style.opacity = 1;
+        // Nach 2 Sekunden zur index.html wechseln
+        setTimeout(() => {
+          window.location = 'index.html';
+        }, 2000);
       }
     }
 
-    // Event bei Video-Ende → nächstes Video laden
     video.addEventListener('ended', playNext);
-
-    // Start mit dem ersten Video
     playNext();
   </script>
 </body>
 </html>
+
 
 
 
