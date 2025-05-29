@@ -15,7 +15,7 @@ function createWindow() {
       //preload: path.join(__dirname, 'preload.js'), // falls du einen Preload-Script nutzen möchtest
     }
   });
-  win.loadFile(path.join(__dirname, 'index.html'));
+  win.loadFile(path.join(__dirname, 'splash.html'));
   // Optional: DevTools öffnen                                                                                         
   // win.webContents.openDevTools();
 }

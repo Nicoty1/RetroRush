@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: black;
+      overflow: hidden;
+    }
+    video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+    }
+    #overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: black;
+      opacity: 0;
+      transition: opacity 2s ease;
+      pointer-events: none;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+  <video id="intro" autoplay></video>
+  <div id="overlay"></div>
+
+  <script>
+    const video = document.getElementById('intro');
+    const overlay = document.getElementById('overlay');
+
+    const playlist = [
+      'img/RR2.mp4',
+      'img/RR.mp4'
+    ];
+
+    let current = 0;
+
+    function playNext() {
+      if (current < playlist.length) {
+        video.src = playlist[current];
+        video.load();
+        video.play();
+        current++;
+      } else {
+        // Letztes Video vorbei → Fade-Out einblenden
+        overlay.style.opacity = 1;
+        // Nach 2 Sekunden zur index.html wechseln
+        setTimeout(() => {
+          window.location = 'index.html';
+        }, 2000);
+      }
+    }
+
+    video.addEventListener('ended', playNext);
+    playNext();
+  </script>
+</body>
+</html>
+
+
+
+
+
+<!--
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: black;
+      overflow: hidden;
+    }
+    video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover; /* oder contain für schwarze Balken */
+    }
+  </style>
+</head>
+<body>
+  <video id="intro" autoplay>
+    <source src="img/RR2.mp4" type="video/mp4">
+    Dein Browser unterstützt kein Video.
+  </video>
+
+  <script>
+    const video = document.getElementById('intro');
+    video.addEventListener('ended', () => {
+      window.location = 'index.html'; // oder über ipcRenderer Bescheid geben
+    });
+  </script>
+</body>
+</html>
+
+-->
