@@ -233,3 +233,23 @@
   z-index: 9999;
 }
 
+.RR_logo_img_centered {
+  width: 40vw;
+  height: auto;
+  max-height: 100vh;
+
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.RR_logo_img_right {
+  width: 40vw;
+  height: auto;
+  max-height: 100vh;
+
+  display: block;
+  margin-left: auto;
+  margin-right: 0;
+}
+
