@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: black;
+      overflow: hidden;
+    }
+    video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+  <video id="intro" autoplay></video>   // muted nach autplay wenn ohne sound abgespielt werden soll
+
+  <script>
+    const video = document.getElementById('intro');
+
+    // Liste der Videos
+    const playlist = [
+      'img/RR.mp4',
+      'img/RR2.mp4',
+    ];
+
+    let current = 0;
+
+    function playNext() {
+      if (current < playlist.length) {
+        video.src = playlist[current];
+        video.load();
+        video.play();
+        current++;
+      } else {
+        // Nach letztem Video: weiter zu index.html
+        window.location = 'index.html';
+      }
+    }
+
+    // Event bei Video-Ende → nächstes Video laden
+    video.addEventListener('ended', playNext);
+
+    // Start mit dem ersten Video
+    playNext();
+  </script>
+</body>
+</html>
+
+
+
+
+<!--
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: black;
+      overflow: hidden;
+    }
+    video {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover; /* oder contain für schwarze Balken */
+    }
+  </style>
+</head>
+<body>
+  <video id="intro" autoplay>
+    <source src="img/RR2.mp4" type="video/mp4">
+    Dein Browser unterstützt kein Video.
+  </video>
+
+  <script>
+    const video = document.getElementById('intro');
+    video.addEventListener('ended', () => {
+      window.location = 'index.html'; // oder über ipcRenderer Bescheid geben
+    });
+  </script>
+</body>
+</html>
+
+-->
