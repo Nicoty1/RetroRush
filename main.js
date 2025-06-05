@@ -7,6 +7,7 @@ function createWindow() {
     width: 800,
     height: 480,
     fullscreen: true,
+    backgroundColor: '#000000', // schwarzer Hintergrund
     webPreferences: {
       // Hier wird standardmäßig kein Node-Integration erlaubt,
       // du kannst aber auch nodeIntegration: true setzen, falls nötig.
